@@ -13,8 +13,8 @@ function [state] = setupState5_7_2015(alpha,beta,airSpeed,airDensity)
 % CONTEXT:	Function for Dynamic TORNADO Aeroelastic Simulator					
 % Called by:	---------FILL IN LATER----------												
 % Calls:	MATLAB 5.2 std fcns
-% Inputs:   alpha - angle of attack
-%           beta - angle of sidesweep
+% Inputs:   alpha - angle of attack, degrees
+%           beta - angle of sidesweep, degrees
 %           airSpeed - Airspeed in m/s
 %           airDensity = Air density in kg/m^3
 % Output:   state - state structure containing:
