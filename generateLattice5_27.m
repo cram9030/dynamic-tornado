@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [lattice] = generateLattice5_18(SegNum,Z,Phiz,X,Phix,Theta,PhiTheta,cord,centroid,cordNum,L,bw,bc,noseH,zb,numSpanB,state)
+function [lattice] = generateLattice5_27(SegNum,Z,Phiz,X,Phix,Theta,PhiTheta,cord,centroid,cordNum,L,bw,bc,noseH,zb,numSpanB,state)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % generateLattice5_6: Function for Dynamic TORNADO						
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -13,7 +13,8 @@ function [lattice] = generateLattice5_18(SegNum,Z,Phiz,X,Phix,Theta,PhiTheta,cor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % CONTEXT:	Function for Dynamic TORNADO Aeroelastic Simulator					
 % Called by:	---------FILL IN LATER----------												
-% Calls:	normals4
+% Calls:	generateNose5_27
+%           normals4
 %           wakesetup2
 %           MATLAB 5.2 std fcns
 % Inputs:   SegNum - Number of segments for both wings
@@ -76,6 +77,8 @@ x1n = [];
 x2n = [];
 xTrail = [];
 xLead = [];
+yTrail = [];
+yLead = [];
 zTrail = [];
 zLead = [];
 zTrailn = [];
@@ -84,9 +87,24 @@ y1n = [];
 y2n = [];
 z1n = [];
 z2n = [];
+x1n = [];
+x2n = [];
 ym = [];
+DiHiAng = [];
+xmb = [];
+ymb = [];
+zmb = [];
 
-%Create wings
+xTrailc = [];
+xLeadc = [];
+zTrailc = [];
+zLeadc = [];
+zTrailcS = [];
+zLeadcS = [];
+yTrailcS = [];
+yLeadcS = [];
+
+% Create wings
 for i = 1:cordNum
     x_3quart = cord/cordNum*(i-.25)-centroid(1);
     x_quart = cord/cordNum*(i-.75)-centroid(1);
@@ -112,21 +130,22 @@ for i = 1:cordNum
     z1n = [z1n;Z(1:end-1)+sin(Theta(1:end-1))*x_quart+cos(Theta(1:end-1))*z_quart];
     z2n = [z2n;Z(1:end-1)+sin(Theta(2:end))*x_quart+cos(Theta(2:end))*z_quart];
 end
+
 ymb = ym';
 xmb = xm';
-zmb = [zm';(zb+bh/2)*ones(cordNum*numSpanB,1);zb*ones(cordNum*numSpanB,1);(zb-bh/2)*ones(cordNum*numSpanB,1)];
+zmb = [zm';(zb+bh/2)*ones((cordNum-1)*numSpanB,1);(zb-bh/2)*ones((cordNum-1)*numSpanB,1)];
 DiHiAng = DiHiAng';
 
-%Create top of the body
-for i = 1:cordNum
+% Create top of the body
+for i = 2:cordNum
     ymb = [ymb;[bw/(2*numSpanB):bw/numSpanB:bw]'+sum(L)/2];
-    x_quart = bc/cordNum*(i-.75)-centroid(1)-noseH;
-    x_3quart = bc/cordNum*(i-.25)-centroid(1)-noseH;
+    x_quart = (bc-noseH)/cordNum*(i-.75)-centroid(1);
+    x_3quart = (bc-noseH)/cordNum*(i-.25)-centroid(1);
     xmb = [xmb;x_3quart*ones(numSpanB,1)];
     x1n = [x1n;x_quart*ones(numSpanB,1)];
     x2n = [x2n;x_quart*ones(numSpanB,1)];
-    xTrail = [xTrail;(bc/cordNum*i-centroid(1)-noseH)*ones(numSpanB,1)];
-    xLead = [xLead;(bc/cordNum*(i-1)-centroid(1)-noseH)*ones(numSpanB,1)];
+    xTrail = [xTrail;((bc-noseH)/cordNum*i-centroid(1))*ones(numSpanB,1)];
+    xLead = [xLead;((bc-noseH)/cordNum*(i-1)-centroid(1))*ones(numSpanB,1)];
     y1n = [y1n;[sum(L)/2:bw/numSpanB:sum(L)/2+bw*(1-1/numSpanB)]'];
     y2n = [y2n;[sum(L)/2+bw/numSpanB:bw/numSpanB:sum(L)/2+bw]'];
     z1n = [z1n;(zb+bh/2)*ones(numSpanB,1)];
@@ -136,35 +155,16 @@ for i = 1:cordNum
     DiHiAng = [DiHiAng;zeros(numSpanB,1)];
 end
 
-%Create mid plane of the body
-for i = 1:cordNum
-    ymb = [ymb;[bw/(2*numSpanB):bw/numSpanB:bw]'+sum(L)/2];
-    x_quart = bc/cordNum*(i-.75)-centroid(1)-noseH;
-    x_3quart = bc/cordNum*(i-.25)-centroid(1)-noseH;
-    xmb = [xmb;x_3quart*ones(numSpanB,1)];
-    x1n = [x1n;x_quart*ones(numSpanB,1)];
-    x2n = [x2n;x_quart*ones(numSpanB,1)];
-    xTrail = [xTrail;(bc/cordNum*i-centroid(1)-noseH)*ones(numSpanB,1)];
-    xLead = [xLead;(bc/cordNum*(i-1)-centroid(1)-noseH)*ones(numSpanB,1)];
-    y1n = [y1n;[sum(L)/2:bw/numSpanB:sum(L)/2+bw*(1-1/numSpanB)]'];
-    y2n = [y2n;[sum(L)/2+bw/numSpanB:bw/numSpanB:sum(L)/2+bw]'];
-    z1n = [z1n;(zb)*ones(numSpanB,1)];
-    z2n = [z2n;(zb)*ones(numSpanB,1)];
-    zTrail = [zTrail;(zb)*ones(numSpanB,1)];
-    zLead = [zLead;(zb)*ones(numSpanB,1)];
-    DiHiAng = [DiHiAng;zeros(numSpanB,1)];
-end
-
 %Create Bottom of the body
-for i = 1:cordNum
+for i = 2:cordNum
     ymb = [ymb;[bw/(2*numSpanB):bw/numSpanB:bw]'+sum(L)/2];
-    x_quart = bc/cordNum*(i-.75)-centroid(1)-noseH;
-    x_3quart = bc/cordNum*(i-.25)-centroid(1)-noseH;
+    x_quart = (bc-noseH)/cordNum*(i-.75)-centroid(1);
+    x_3quart = (bc-noseH)/cordNum*(i-.25)-centroid(1);
     xmb = [xmb;x_3quart*ones(numSpanB,1)];
     x1n = [x1n;x_quart*ones(numSpanB,1)];
     x2n = [x2n;x_quart*ones(numSpanB,1)];
-    xTrail = [xTrail;(bc/cordNum*i-centroid(1)-noseH)*ones(numSpanB,1)];
-    xLead = [xLead;(bc/cordNum*(i-1)-centroid(1)-noseH)*ones(numSpanB,1)];
+    xTrail = [xTrail;((bc-noseH)/cordNum*i-centroid(1))*ones(numSpanB,1)];
+    xLead = [xLead;((bc-noseH)/cordNum*(i-1)-centroid(1))*ones(numSpanB,1)];
     y1n = [y1n;[sum(L)/2:bw/numSpanB:sum(L)/2+bw*(1-1/numSpanB)]'];
     y2n = [y2n;[sum(L)/2+bw/numSpanB:bw/numSpanB:sum(L)/2+bw]'];
     z1n = [z1n;(zb-bh/2)*ones(numSpanB,1)];
@@ -174,17 +174,17 @@ for i = 1:cordNum
     DiHiAng = [DiHiAng;zeros(numSpanB,1)];
 end
 
-% %Create Left side of the body
+%Create Left side of the body
 % for i = 1:cordNum
 %     zmb = [zmb;[bh/(2*numSpanB):bh/numSpanB:bh]'+zb-bh/2];
 %     ymb = [ymb;ones(numSpanB,1)*sum(L)/2];
-%     x_quart = bc/cordNum*(i-.75)-centroid(1)-noseH;
-%     x_3quart = bc/cordNum*(i-.25)-centroid(1)-noseH;
+%     x_quart = (bc-noseH)/cordNum*(i-.75)-centroid(1);
+%     x_3quart = (bc-noseH)/cordNum*(i-.25)-centroid(1);
 %     xmb = [xmb;x_3quart*ones(numSpanB,1)];
 %     x1n = [x1n;x_quart*ones(numSpanB,1)];
 %     x2n = [x2n;x_quart*ones(numSpanB,1)];
-%     xTrail = [xTrail;(bc/cordNum*i-centroid(1)-noseH)*ones(numSpanB,1)];
-%     xLead = [xLead;(bc/cordNum*(i-1)-centroid(1)-noseH)*ones(numSpanB,1)];
+%     xTrail = [xTrail;((bc-noseH)/cordNum*i-centroid(1))*ones(numSpanB,1)];
+%     xLead = [xLead;((bc-noseH)/cordNum*(i-1)-centroid(1))*ones(numSpanB,1)];
 %     y1n = [y1n;ones(numSpanB,1)*sum(L)/2];
 %     y2n = [y2n;ones(numSpanB,1)*sum(L)/2];
 %     z1n = [z1n;[-bh/2:bh/numSpanB:bh/2*(1-1/numSpanB)]'+zb];
@@ -198,13 +198,13 @@ end
 % for i = 1:cordNum
 %     zmb = [zmb;[bh/(2*numSpanB):bh/numSpanB:bh]'+zb-bh/2];
 %     ymb = [ymb;ones(numSpanB,1)*sum(L)/2+bw];
-%     x_quart = bc/cordNum*(i-.75)-centroid(1)-noseH;
-%     x_3quart = bc/cordNum*(i-.25)-centroid(1)-noseH;
+%     x_quart = (bc-noseH)/cordNum*(i-.75)-centroid(1);
+%     x_3quart = (bc-noseH)/cordNum*(i-.25)-centroid(1);
 %     xmb = [xmb;x_3quart*ones(numSpanB,1)];
 %     x1n = [x1n;x_quart*ones(numSpanB,1)];
 %     x2n = [x2n;x_quart*ones(numSpanB,1)];
-%     xTrail = [xTrail;(bc/cordNum*i-centroid(1)-noseH)*ones(numSpanB,1)];
-%     xLead = [xLead;(bc/cordNum*(i-1)-centroid(1)-noseH)*ones(numSpanB,1)];
+%     xTrail = [xTrail;((bc-noseH)/cordNum*i-centroid(1))*ones(numSpanB,1)];
+%     xLead = [xLead;((bc-noseH)/cordNum*(i-1)-centroid(1))*ones(numSpanB,1)];
 %     y1n = [y1n;ones(numSpanB,1)*(sum(L)/2+bw)];
 %     y2n = [y2n;ones(numSpanB,1)*(sum(L)/2+bw)];
 %     z1n = [z1n;[-bh/2:bh/numSpanB:bh/2*(1-1/numSpanB)]'+zb];
@@ -213,9 +213,9 @@ end
 %     zLead = [zLead;[bh/numSpanB-bh/2:bh/numSpanB:bh/2]'+zb];
 %     DiHiAng = [DiHiAng;pi*ones(numSpanB,1)];
 % end
-% 
-% temp = [];
-% % Create end cap
+
+temp = [];%change variable name to something meaningful
+% Create end cap
 % for i = 1:numSpanB
 %     zmb = [zmb;[.75*bh/numSpanB:bh/numSpanB:bh/2]'+zb-bh/2];
 %     zmb = [zmb;-[.75*bh/numSpanB:bh/numSpanB:bh/2]'+zb+bh/2];
@@ -227,56 +227,39 @@ end
 %     xLead = [xLead;(bc-centroid(1)-noseH)*ones(numSpanB,1)];
 %     y1n = [y1n;sum(L)/2+bw/numSpanB*(i-1)*ones(numSpanB,1)];
 %     y2n = [y2n;sum(L)/2+bw/numSpanB*i*ones(numSpanB,1)];
-%     z1n = [z1n;[.25*bh/numSpanB:bh/numSpanB:bh/2]'+zb-bh/2];
-%     z1n = [z1n;-[.25*bh/numSpanB:bh/numSpanB:bh/2]'+zb+bh/2];
-%     z2n = [z2n;[.25*bh/numSpanB:bh/numSpanB:bh/2]'+zb-bh/2];
-%     z2n = [z2n;-[.25*bh/numSpanB:bh/numSpanB:bh/2]'+zb+bh/2];
+%     z1n = [z1n;[.25*bh/numSpanB:bh/numSpanB:bh*.5]'+zb-bh/2];
+%     z1n = [z1n;-[.25*bh/numSpanB:bh/numSpanB:bh*.5]'+zb+bh/2];
+%     z2n = [z2n;[.25*bh/numSpanB:bh/numSpanB:bh*.5]'+zb-bh/2];
+%     z2n = [z2n;-[.25*bh/numSpanB:bh/numSpanB:bh*.5]'+zb+bh/2];
 %     zTrailn = [zTrailn;[-bh/2:bh/numSpanB:bh/2*(1-1/numSpanB)]'+zb];
 %     zLeadn = [zLeadn;[bh/numSpanB-bh/2:bh/numSpanB:bh/2]'+zb];
 %     DiHiAng = [DiHiAng;0*ones(numSpanB,1)];
 %     temp = [temp,pi*ones(1,numSpanB/2),0*ones(1,numSpanB/2)];
 % end
-% 
-% %Create nose
-% for i = 1:numSpanB
-%     zmb = [zmb;[.75*bh/numSpanB:bh/numSpanB:bh/2]'+zb-bh/2];
-%     zmb = [zmb;-[.75*bh/numSpanB:bh/numSpanB:bh/2]'+zb+bh/2];
-%     ymb = [ymb;bw/numSpanB*(i-.5)*ones(numSpanB,1)+sum(L)/2];
-%     xmb = [xmb;(-centroid(1)-noseH)*ones(numSpanB,1)];
-%     x1n = [x1n;(-centroid(1)-noseH)*ones(numSpanB,1)];
-%     x2n = [x2n;(-centroid(1)-noseH)*ones(numSpanB,1)];
-%     xTrail = [xTrail;(-centroid(1)-noseH)*ones(numSpanB,1)];
-%     xLead = [xLead;(-centroid(1)-noseH)*ones(numSpanB,1)];
-%     y1n = [y1n;sum(L)/2+bw/numSpanB*(i-1)*ones(numSpanB,1)];
-%     y2n = [y2n;sum(L)/2+bw/numSpanB*i*ones(numSpanB,1)];
-%     z1n = [z1n;[.25*bh/numSpanB:bh/numSpanB:bh/2]'+zb-bh/2];
-%     z1n = [z1n;-[.25*bh/numSpanB:bh/numSpanB:bh/2]'+zb+bh/2];
-%     z2n = [z2n;[.25*bh/numSpanB:bh/numSpanB:bh/2]'+zb-bh/2];
-%     z2n = [z2n;-[.25*bh/numSpanB:bh/numSpanB:bh/2]'+zb+bh/2];
-%     zTrailn = [zTrailn;[-bh/2:bh/numSpanB:bh/2*(1-1/numSpanB)]'+zb];
-%     zLeadn = [zLeadn;[bh/numSpanB-bh/2:bh/numSpanB:bh/2]'+zb];
-%     DiHiAng = [DiHiAng;0*ones(numSpanB,1)];
-%     temp = [temp,0*ones(1,numSpanB/2),pi*ones(1,numSpanB/2)];
-% end
+
+yLead = y1n-(sum(L)+bw)/2;
+yTrail = y2n-(sum(L)+bw)/2;
+
+%Create nose "cone"
+[xNose,yNose,zNose,xNoseLattice,yNoseLattice,zNoseLattice,xNosem,yNosem,zNosem,sNose] = generateNose5_27(numSpanB,bw,centroid,noseH,zb,cordNum,bc);
 
 ymb = ymb-(sum(L)+bw)/2;
 y1n = y1n-(sum(L)+bw)/2;
 y2n = y2n-(sum(L)+bw)/2;
-alpha = alpha+state.alpha;
 
-lattice.COLLOC = [xmb,ymb,zmb];
+lattice.COLLOC = [[xmb;xNosem],[ymb;yNosem],[zmb;zNosem]];
 
-lattice.VORTEX(:,:,1) = [cord*ones(size([zLead;zLeadn])),x1n,x1n,cord*ones(size([zLead;zLeadn]))];
-lattice.VORTEX(:,:,2) = [y1n,y1n,y2n,y2n];
-lattice.VORTEX(:,:,3) = [z1n,z1n,z2n,z2n];
+lattice.VORTEX(:,:,1) = [[cord*ones(size(x1n)),x1n,x1n,cord*ones(size(x1n))];xNoseLattice];
+lattice.VORTEX(:,:,2) = [[y1n,y1n,y2n,y2n];yNoseLattice];
+lattice.VORTEX(:,:,3) = [[z1n,z1n,z2n,z2n];zNoseLattice];
 
-lattice.XYZ(:,:,1) = [xLead,xLead,xTrail,xTrail,xLead];
-lattice.XYZ(:,:,2) = [y1n,y2n,y2n,y1n,y1n];
-lattice.XYZ(:,:,3) = [[zLead;zLeadn],[zTrail;zLeadn],[zTrail;zTrailn],[zLead;zTrailn],[zLead;zLeadn]];
+lattice.XYZ(:,:,1) = [[xLead,xLead,xTrail,xTrail,xLead];xNose];
+lattice.XYZ(:,:,2) = [[yLead,yTrail,yTrail,yLead,yLead];yNose];
+lattice.XYZ(:,:,3) = [[[zLead;zLeadn],[zTrail;zLeadn],[zTrail;zTrailn],[zLead;zTrailn],[zLead;zLeadn]];zNose];
 
-S = [zeros(1,cordNum*SegNum),0*ones(1,cordNum*numSpanB),0*ones(1,cordNum*numSpanB),pi*ones(1,cordNum*numSpanB)];%,0*ones(1,cordNum*numSpanB),0*ones(1,cordNum*numSpanB),temp];
+S = [0*ones(1,cordNum*SegNum),0*ones(1,(cordNum-1)*numSpanB),0*ones(1,(cordNum-1)*numSpanB),sNose];
 
-lattice.N=normals4(lattice.COLLOC,lattice.VORTEX,S,DiHiAng);
+lattice.N=normals4(lattice.COLLOC,lattice.VORTEX,S,[DiHiAng;zeros(length(xNosem),1)]);
 
 [ref]=setRef(L,bw,cord,bc,centroid,noseH);
 if state.AS~=0   %appending wake lattice points (farpoints)
