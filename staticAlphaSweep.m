@@ -43,7 +43,6 @@ for j = twistRange
         masterLattice(j-min(twistRange)+1,i-min(alphaRange)+1) = generateLattice5_30(SegNum,Z,Phiz,X,Phix,Theta,PhiTheta,cord,centroid,cordNum,L,bw,bc,noseH,zb,numSpanB,masterState(j-min(twistRange)+1,i-min(alphaRange)+1));
         masterGeo(j-min(twistRange)+1,i-min(alphaRange)+1) = setupGeo5_7_2015(zeros(1,3),zeros(1,3),2*max(max(max(masterLattice(j-min(twistRange)+1,i-min(alphaRange)+1).XYZ))),cordNum,SegNum,numSpanB);
         results = solver5_7_2015(masterState(j-min(twistRange)+1,i-min(alphaRange)+1),masterGeo(j-min(twistRange)+1,i-min(alphaRange)+1),masterLattice(j-min(twistRange)+1,i-min(alphaRange)+1));
-        coeff_create5_7_2015(results,masterLattice(j-min(twistRange)+1,i-min(alphaRange)+1),masterState(j-min(twistRange)+1,i-min(alphaRange)+1),ref,masterGeo(j-min(twistRange)+1,i-min(alphaRange)+1));
         masterResults(j-min(twistRange)+1,i-min(alphaRange)+1) = coeff_create5_7_2015(results,masterLattice(j-min(twistRange)+1,i-min(alphaRange)+1),masterState(j-min(twistRange)+1,i-min(alphaRange)+1),ref,masterGeo(j-min(twistRange)+1,i-min(alphaRange)+1));
         CL(j-min(twistRange)+1,i-min(alphaRange)+1) = masterResults(j-min(twistRange)+1,i-min(alphaRange)+1).CL;
         CD(j-min(twistRange)+1,i-min(alphaRange)+1) = masterResults(j-min(twistRange)+1,i-min(alphaRange)+1).CD;
