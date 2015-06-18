@@ -86,7 +86,7 @@ b1=vor_length/2;
 
 p1(:,:)=lattice.VORTEX(:,b1,:);		%Calculating panel vortex midpoint	
 p2(:,:)=lattice.VORTEX(:,b1+1,:);	%to use as a force locus
-%lattice.COLLOC(:,:)=(p1+p2)./2;	    % LOCAL control point, vortex midpoint.
+lattice.COLLOC(:,:)=(p1+p2)./2;	    % LOCAL control point, vortex midpoint.
 
 c3=lattice.COLLOC-ones(size(lattice.COLLOC,1),1)*geo.ref_point;
 
