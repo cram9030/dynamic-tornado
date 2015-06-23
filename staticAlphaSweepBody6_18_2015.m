@@ -1,4 +1,4 @@
-function [masterState,masterLattice,masterGeo,masterResults,ref,forceTwist,CL,CD] = staticAlphaSweep6_18_2015(M,C,K,SegNum,halfWingLength,cord,centroid,ActLoc,cordNum,alphaRange,twistRange,beta,airSpeed,airDensity)
+function [masterState,masterLattice,masterGeo,masterResults,ref,forceTwist,CL,CD] = staticAlphaSweepBody6_18_2015(M,C,K,SegNum,halfWingLength,cord,centroid,ActLoc,cordNum,bw,bc,noseH,zb,numSpanB,alphaRange,twistRange,beta,airSpeed,airDensity)
 
 K = K(6:end,6:end);
 M = M(6:end,6:end);
@@ -20,7 +20,13 @@ for j = twistRange
         %Determine twist of wing based off of perscribed tip twist
         tempK = K;
         %Will be switching the states around to solve for the twist and
-        %force of the sections. 
+        %force of the sections. Instead of F = KX where X is
+        %[z_i,phi_zi,x_i,phi_xi,theta_i,...,z_end,phi_zend,x_end,phi_xend,theta_end]
+        %it will end with ,z_end,phi_zend,x_end,phi_xend,torque_tip]
+        %meaning that the stiffness matrix must have the components that
+        %are dependent on the tip twist altered. The F must then have the
+        %corrisponding components replaced with the stiffness times the tip
+        %twist then inverted.
         tempK(end,end) = -1;
         tempK(end-5,end) = 0;
         tempTwist(end) = -K(end,end)*j*pi/180;
@@ -43,7 +49,7 @@ for j = twistRange
         
         masterState(j-min(twistRange)+1,i-min(alphaRange)+1) = setupState5_7_2015(i,beta,airSpeed,airDensity);
         masterGeo(j-min(twistRange)+1,i-min(alphaRange)+1) = setupGeo6_15_2015([ActLoc(1),0,ActLoc(2)],[centroid(1),0,centroid(2)],sum(L),cordNum,SegNum);
-        masterLattice(j-min(twistRange)+1,i-min(alphaRange)+1) = generateLatticeNoBody6_18_2015(SegNum,Z,Phiz,X,Phix,Theta,cord,masterGeo(j-min(twistRange)+1,i-min(alphaRange)+1),cordNum,L,masterState(j-min(twistRange)+1,i-min(alphaRange)+1));
+        masterLattice(j-min(twistRange)+1,i-min(alphaRange)+1) = generateLattice6_18_2015(SegNum,Z,Phiz,X,Phix,Theta,cord,masterGeo(j-min(twistRange)+1,i-min(alphaRange)+1),cordNum,L,bw,bc,noseH,zb,numSpanB,masterState(j-min(twistRange)+1,i-min(alphaRange)+1));
         results = solver5_7_2015(masterState(j-min(twistRange)+1,i-min(alphaRange)+1),masterGeo(j-min(twistRange)+1,i-min(alphaRange)+1),masterLattice(j-min(twistRange)+1,i-min(alphaRange)+1));
         masterResults(j-min(twistRange)+1,i-min(alphaRange)+1) = coeff_create6_15_2015(results,masterLattice(j-min(twistRange)+1,i-min(alphaRange)+1),masterState(j-min(twistRange)+1,i-min(alphaRange)+1),ref,masterGeo(j-min(twistRange)+1,i-min(alphaRange)+1));
         CL(j-min(twistRange)+1,i-min(alphaRange)+1) = masterResults(j-min(twistRange)+1,i-min(alphaRange)+1).CL;

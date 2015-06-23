@@ -1,11 +1,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [lattice] = generateLatticeNoBody6_18_2015(SegNum,Z,Phiz,X,Phix,Theta,cord,geo,cordNum,L,state)
+function [lattice] = generateLattice6_18_2015(SegNum,Z,Phiz,X,Phix,Theta,cord,geo,cordNum,L,bw,bc,noseH,zb,numSpanB,state)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% generateLattice5_6: Function for Dynamic TORNADO						
+% generateLattice6_18_2015: Function for Dynamic TORNADO						
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This function creates the lattice structure for the calculation of
 % the vortex lattice method. It convernts the finite element states
-% into a usable lattice. No body in this version.
+% into a usable lattice.
 % NOTE: Current calculations are not for wings with sweep,
 %       taper, or other variances
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -17,15 +17,22 @@ function [lattice] = generateLatticeNoBody6_18_2015(SegNum,Z,Phiz,X,Phix,Theta,c
 %           wakesetup2
 %           MATLAB 5.2 std fcns
 % Inputs:   SegNum - Number of segments for both wings
-%           Z - Z displacement of wing from geo.ref_point
+%           Z - Z displacement of wing from centroid
 %           Phiz - Z displacement slope
-%           X - X displacement of wing from geo.ref_point
+%           X - X displacement of wing from centroid
 %           Phix - X displacement slope
 %           Theta - Twist angle
+%           PhiTheta - Twist angle slope
 %           cord - Wing Cord Length
-%           geo.ref_point - Center of mass of airfoil
+%           centroid - Center of mass of airfoil
 %           cordNum - Number of lattice partitions in the cord
 %           L - Length vector for wings
+%           bw - Body Width
+%           bc - Body Length
+%           noseH - length that the nose cone extends beyond the wing
+%           zb - Z offset of the body from the wing
+%           numSpanB - Number of partitions in the span direction of the
+%           body
 %           state - Structure containing simulation state:
 %                       alpha - angle of attack
 %                       betha - angle of side sweep
@@ -94,13 +101,13 @@ for i = 1:cordNum
             xm(j+SegNum*(i-1)) = 0.5*X(j)+.125*Phix(j)+0.5*X(j+1)-0.125*Phix(j+1)+x_3quart*cos(alpha(j))+sin(alpha(j))*z_3quart;
         end
     end
-    ym = [ym;-flipud([L(1)/2:L(1):sum(L)/2]');[L(1)/2:L(1):sum(L)/2]'];
+    ym = [ym;-flipud([L(1)/2:L(1):sum(L)/2]')-bw/2;[L(1)/2:L(1):sum(L)/2]'+bw/2];
     x1n = [x1n;X(1:end-1)+x_quart*cos(Theta(1:end-1))-sin(Theta(1:end-1))*z_quart];
     x2n = [x2n;X(2:end)+x_quart*cos(Theta(2:end))-sin(Theta(2:end))*z_quart];
     xTrail = [xTrail;((cord/cordNum*i)*cos(Theta(2:end))-sin(Theta(2:end))*z_trail)];
     xLead = [xLead;((cord/cordNum*(i-1))*cos(Theta(2:end))-sin(Theta(2:end))*z_lead)];
-    y1n = [y1n;[-flipud([cumsum(L(length(L)/2:end-1))]);[0;cumsum(L(length(L)/2:end-2))]]];
-    y2n = [y2n;[-flipud([0;cumsum(L(length(L)/2:end-2))]);[cumsum(L(length(L)/2:end-1))]]];
+    y1n = [y1n;[-flipud([cumsum(L(length(L)/2:end-1))])-bw/2;[0;cumsum(L(length(L)/2:end-2))]+bw/2]];
+    y2n = [y2n;[-flipud([0;cumsum(L(length(L)/2:end-2))])-bw/2;[cumsum(L(length(L)/2:end-1))]+bw/2]];
     z1n = [z1n;Z(1:end-1)+sin(Theta(1:end-1))*x_quart+cos(Theta(1:end-1))*z_quart];
     z2n = [z2n;Z(1:end-1)+sin(Theta(2:end))*x_quart+cos(Theta(2:end))*z_quart];
     zTrailR = [zTrailR;Z(1:end-1)+sin(Theta(1:end-1))*(cord/cordNum*i-geo.ref_point(1))+cos(Theta(1:end-1))*z_trail];
@@ -110,14 +117,35 @@ for i = 1:cordNum
 end
 ymb = ym;
 xmb = xm';
-zmb = zm';
+zmb = [zm';zb*ones(cordNum*numSpanB,1)];
 DiHiAng = DiHiAng';
+
+for i = 1:cordNum
+    ymb = [ymb;[-flipud([bw/(2*numSpanB):bw/numSpanB:bw/2]');[bw/(2*numSpanB):bw/numSpanB:bw/2]']];
+    x_quart = bc/cordNum*(i-.75)-noseH;
+    x_3quart = bc/cordNum*(i-.25)-noseH;
+    xmb = [xmb;x_3quart*ones(numSpanB,1)];
+    x1n = [x1n;x_quart*ones(numSpanB,1)];
+    x2n = [x2n;x_quart*ones(numSpanB,1)];
+    xTrail = [xTrail;(bc/cordNum*i-noseH)*ones(numSpanB,1)];
+    xLead = [xLead;(bc/cordNum*(i-1)-noseH)*ones(numSpanB,1)];
+    y1n = [y1n;[-flipud([bw/numSpanB:bw/numSpanB:bw/2]');[0:bw/numSpanB:bw/2-bw/numSpanB]']];
+    y2n = [y2n;[-flipud([bw/numSpanB:bw/numSpanB:bw/2-bw/numSpanB]');[0:bw/numSpanB:bw/2]']];
+    z1n = [z1n;zb*ones(numSpanB,1)];
+    z2n = [z2n;zb*ones(numSpanB,1)];
+    zTrailR = [zTrailR;zb*ones(numSpanB,1)];
+    zLeadR = [zLeadR;zb*ones(numSpanB,1)];
+    zTrailL = [zTrailL;zb*ones(numSpanB,1)];
+    zLeadL = [zLeadL;zb*ones(numSpanB,1)];
+    DiHiAng = [DiHiAng;zeros(numSpanB,1)];
+end
 
 alpha = alpha+state.alpha;
 
 lattice.COLLOC = [xmb,ymb,zmb];
 
-lattice.VORTEX(:,:,1) = [cord*ones(size(xTrail)),x1n,x2n,cord*ones(size(xTrail))];
+
+lattice.VORTEX(:,:,1) = [cord*ones(size(xTrail)),x1n,x1n,cord*ones(size(xTrail))];
 lattice.VORTEX(:,:,2) = [y1n,y1n,y2n,y2n];
 lattice.VORTEX(:,:,3) = [z1n,z1n,z2n,z2n];
 
@@ -125,7 +153,7 @@ lattice.XYZ(:,:,1) = [xLead,xLead,xTrail,xTrail,xLead];
 lattice.XYZ(:,:,2) = [y1n,y2n,y2n,y1n,y1n];
 lattice.XYZ(:,:,3) = [zLeadR,zLeadL,zTrailL,zTrailR,zLeadR];
 
-S = zeros(1,cordNum*SegNum);
+S = zeros(1,cordNum*(SegNum+numSpanB));
 lattice.N=normals4(lattice.COLLOC,lattice.VORTEX,S);
 
 [ref]=setRef6_15(L,cord,geo.CG);
@@ -197,7 +225,7 @@ function[p2]=trot3(hinge,p,alpha)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % rotates point p around hinge alpha rads.%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ref_point: 	Råde, Westergren, BETA 4th ed,   
+% ref: 	Råde, Westergren, BETA 4th ed,   
 %			studentlitteratur, 1998			    	
 %			pp:107-108							   	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
