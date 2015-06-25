@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [lattice] = generateLattice6_18_2015(SegNum,Z,Phiz,X,Phix,Theta,cord,geo,cordNum,L,bw,bc,noseH,zb,numSpanB,state)
+function [lattice] = generateLattice6_24_2015(SegNum,Z,Phiz,X,Phix,Theta,cord,geo,cordNum,L,bw,bc,noseH,zb,numSpanB,state)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % generateLattice6_18_2015: Function for Dynamic TORNADO						
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -291,19 +291,19 @@ end
 V2=lattice.VORTEX;
 c=[1 b];
 
-infx=infdist*cos(state.alpha)*cos(state.betha);
+infx=infdist*cos(state.alpha_root)*cos(state.betha);
 infy=-infdist*sin(state.betha);
-infz=infdist*sin(state.alpha)*cos(state.betha);
+infz=infdist*sin(state.alpha_root)*cos(state.betha);
 
 for t=1:a
    for s=1:2
-   	x=infx+lattice.VORTEX(t,c(s),1);
+   	  x=infx+lattice.VORTEX(t,c(s),1);
       y=infy+lattice.VORTEX(t,c(s),2);
       z=infz+lattice.VORTEX(t,c(s),3);
       
-      psi=state.P/state.AS*x;
-  	  theta=state.Q/state.AS*x;
-   	  fi=state.R/state.AS*x;
+      psi=state.P/state.U_inf*x;
+  	  theta=state.Q/state.U_inf*x;
+   	  fi=state.R/state.U_inf*x;
       
       dx(t,s)=-x*(2-cos(theta)-cos(fi));
    	  dy(t,s)=+sin(psi)*z-sin(fi)*x+(1-cos(psi))*y;
