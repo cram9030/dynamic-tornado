@@ -61,7 +61,8 @@ function [lattice] = generateLattice6_24_2015(SegNum,Z,Phiz,X,Phix,Theta,cord,ge
 %                   XYZ - cordNum*(SegNum+numSpanB)by 4 of 3 matrices
 %                   containing x,y,z positions for each external corner
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%bh = 0.1034;
+bh = 0;
 %Intializing lattice
 lattice.COLLOC=[];
 lattice.VORTEX=[];
@@ -117,31 +118,52 @@ for i = 1:cordNum
 end
 ymb = ym;
 xmb = xm';
-zmb = [zm';zb*ones(cordNum*numSpanB,1)];
+zmb = [zm';(zb-bh/4)*ones(cordNum*numSpanB,1)];
 DiHiAng = DiHiAng';
 
 for i = 1:cordNum
     ymb = [ymb;[-flipud([bw/(2*numSpanB):bw/numSpanB:bw/2]');[bw/(2*numSpanB):bw/numSpanB:bw/2]']];
-    x_quart = bc/cordNum*(i-.75)-noseH;
-    x_3quart = bc/cordNum*(i-.25)-noseH;
+    x_quart = bc/cordNum*(i-.75);
+    x_3quart = bc/cordNum*(i-.25);
     xmb = [xmb;x_3quart*ones(numSpanB,1)];
     x1n = [x1n;x_quart*ones(numSpanB,1)];
     x2n = [x2n;x_quart*ones(numSpanB,1)];
-    xTrail = [xTrail;(bc/cordNum*i-noseH)*ones(numSpanB,1)];
-    xLead = [xLead;(bc/cordNum*(i-1)-noseH)*ones(numSpanB,1)];
+    xTrail = [xTrail;(bc/cordNum*i)*ones(numSpanB,1)];
+    xLead = [xLead;(bc/cordNum*(i-1))*ones(numSpanB,1)];
     y1n = [y1n;[-flipud([bw/numSpanB:bw/numSpanB:bw/2]');[0:bw/numSpanB:bw/2-bw/numSpanB]']];
     y2n = [y2n;[-flipud([bw/numSpanB:bw/numSpanB:bw/2-bw/numSpanB]');[0:bw/numSpanB:bw/2]']];
-    z1n = [z1n;zb*ones(numSpanB,1)];
-    z2n = [z2n;zb*ones(numSpanB,1)];
-    zTrailR = [zTrailR;zb*ones(numSpanB,1)];
-    zLeadR = [zLeadR;zb*ones(numSpanB,1)];
-    zTrailL = [zTrailL;zb*ones(numSpanB,1)];
-    zLeadL = [zLeadL;zb*ones(numSpanB,1)];
+    z1n = [z1n;(zb-bh/4)*ones(numSpanB,1)];
+    z2n = [z2n;(zb-bh/4)*ones(numSpanB,1)];
+    zTrailR = [zTrailR;(zb-bh/4)*ones(numSpanB,1)];
+    zLeadR = [zLeadR;(zb-bh/4)*ones(numSpanB,1)];
+    zTrailL = [zTrailL;(zb-bh/4)*ones(numSpanB,1)];
+    zLeadL = [zLeadL;(zb-bh/4)*ones(numSpanB,1)];
     DiHiAng = [DiHiAng;zeros(numSpanB,1)];
 end
 
-lattice.COLLOC = [xmb,ymb,zmb];
+% zmb = [zmb;(zb+bh/4)*ones(cordNum*numSpanB,1)];
+% 
+% for i = 1:cordNum
+%     ymb = [ymb;[-flipud([bw/(2*numSpanB):bw/numSpanB:bw/2]');[bw/(2*numSpanB):bw/numSpanB:bw/2]']];
+%     x_quart = bc/cordNum*(i-.75)-noseH;
+%     x_3quart = bc/cordNum*(i-.25)-noseH;
+%     xmb = [xmb;x_3quart*ones(numSpanB,1)];
+%     x1n = [x1n;x_quart*ones(numSpanB,1)];
+%     x2n = [x2n;x_quart*ones(numSpanB,1)];
+%     xTrail = [xTrail;(bc/cordNum*i-noseH)*ones(numSpanB,1)];
+%     xLead = [xLead;(bc/cordNum*(i-1)-noseH)*ones(numSpanB,1)];
+%     y1n = [y1n;[-flipud([bw/numSpanB:bw/numSpanB:bw/2]');[0:bw/numSpanB:bw/2-bw/numSpanB]']];
+%     y2n = [y2n;[-flipud([bw/numSpanB:bw/numSpanB:bw/2-bw/numSpanB]');[0:bw/numSpanB:bw/2]']];
+%     z1n = [z1n;(zb+bh/4)*ones(numSpanB,1)];
+%     z2n = [z2n;(zb+bh/4)*ones(numSpanB,1)];
+%     zTrailR = [zTrailR;(zb+bh/4)*ones(numSpanB,1)];
+%     zLeadR = [zLeadR;(zb+bh/4)*ones(numSpanB,1)];
+%     zTrailL = [zTrailL;(zb+bh/4)*ones(numSpanB,1)];
+%     zLeadL = [zLeadL;(zb+bh/4)*ones(numSpanB,1)];
+%     DiHiAng = [DiHiAng;zeros(numSpanB,1)];
+% end
 
+lattice.COLLOC = [xmb,ymb,zmb];
 
 lattice.VORTEX(:,:,1) = [cord*ones(size(xTrail)),x1n,x1n,cord*ones(size(xTrail))];
 lattice.VORTEX(:,:,2) = [y1n,y1n,y2n,y2n];

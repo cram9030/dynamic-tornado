@@ -62,9 +62,11 @@ Wind = [];
 for i = 1:geo.nx
     Wind=[Wind;wind];
 end
+
 for i=1:a
    Rot(i,:)=cross((lattice.COLLOC(i,:)-geo.CG),[state.P state.Q state.R]);
-end                                   
+end     
+
 veloc=Wind+Rot;
 bc(:,1)=sum(lattice.N.*veloc,2)';  %steady state bc
 %%%%%%%%%%%%%%%%%%%%%%%

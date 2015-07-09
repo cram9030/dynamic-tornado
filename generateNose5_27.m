@@ -11,7 +11,7 @@ yNosem = [];
 zNosem = [];
 sNose = [];
 
-numMid = ceil((0.0254/2)/(0.038989/numSpanB));
+numMid = ceil((0.0254/4)/(0.038989/numSpanB/2));
 if mod(numMid,2) == 1
     numMid = numMid + 1;
 end
@@ -22,8 +22,8 @@ xi = sqrt(noseH^2-yi.^2*noseH^2/(bw/2)^2)+centroid(1)+noseH;
 xi(1) = centroid(1)+noseH;
 xi(end) = centroid(1)+noseH;
 
-zi = sqrt(0.038989^2-0.038989^2*(xi-centroid(1)-noseH).^2/noseH^2) + 0.0254/2;
-zi(ceil(length(yi)/2)) = 0.0254/2;
+zi = sqrt(0.038989^2/4-0.038989^2/4*(xi-centroid(1)-noseH).^2/noseH^2) + 0.0254/4;
+zi(ceil(length(yi)/2)) = 0.0254/4;
 
 xi = xi';
 yi = yi';
