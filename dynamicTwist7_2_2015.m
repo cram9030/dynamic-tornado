@@ -58,6 +58,8 @@ LD = zeros(length(twist),1);
 %Intialize length, airspeed, and refrence
 L = 2*halfWingLength/SegNum*ones(SegNum,1);
 [ref]=setRef6_15(L,cord,zeros(1,3));
+phi = -atan(ActLoc(1)/ActLoc(2));
+airfoilRot = [cos(phi) -sin(phi);sin(phi) cos(phi)];
 
 %Convert alpha_root from degrees to radian
 alpha_root = alpha_root*pi/180;
@@ -67,11 +69,13 @@ for t = twist(:,1)'
     %Initialize alphas, Dihedrial angle, and forces to zero
     DiHiAng = zeros(SegNum,1);
     alpha = zeros(SegNum,1);
+    vLoc = zeros(2,SegNum+numSpanB);
+    alpha_aero = zeros(SegNum+numSpanB,1);
+    artU_infMag = zeros(SegNum+numSpanB,1);
     
     %Determine twist of wing based off of perscribed tip twist
     tipTwist = twist(count,2);
     tipRotVel = twist(count,3);
-    
     
     tempK = K;
     tempK(end,end) = -1;
@@ -106,16 +110,24 @@ for t = twist(:,1)'
     for j = 1:SegNum
         alpha(j) = 0.5*Theta(j+1)+0.5*Theta(j);
     end
-    alpha = alpha_root*ones(SegNum,1)+alpha;
+    alpha = alpha_root*ones(SegNum,1)-alpha;
     
     %Calculate artificial airspeed and aeroelastic angle of attack
     airSpeed = 0.3048*sqrt(2*q(count)/airDensity);
-    tempArtU_inf = sqrt((ActLoc(1)*[flipud(staticVel(5:5:end));staticVel(5:5:end)]+airSpeed*sin(alpha)).^2+(airSpeed*cos(alpha)).^2);
-    artU_inf = [tempArtU_inf(1:SegNum/2);airSpeed*ones(numSpanB,1);tempArtU_inf(SegNum/2+1:end)];
-    tempAlpha_aero = atan((ActLoc(1)^2*[flipud(staticVel(5:5:end));staticVel(5:5:end)]+airSpeed*sin(alpha))./(airSpeed*cos(alpha)));
-    alpha_aero = [tempAlpha_aero(1:SegNum/2);alpha_root*ones(numSpanB,1);tempAlpha_aero(SegNum/2+1:end)];
+    tempU_inf = [airSpeed*ones(1,SegNum+numSpanB);zeros(1,SegNum+numSpanB)];
+    tempArtU_inf = [zeros(1,SegNum);norm(ActLoc,2)*[flipud(staticVel(5:5:end));staticVel(5:5:end)]'];
+    artU_inf = [tempArtU_inf(:,1:SegNum/2),zeros(2,numSpanB),tempArtU_inf(:,SegNum/2+1:end)];
+    alpha = [alpha(1:SegNum/2);alpha_root*ones(numSpanB,1);alpha(SegNum/2+1:end)];
+    for i = 1:length(artU_inf)
+        vLoc(:,i) = [cos(alpha(i)) -sin(alpha(i));sin(alpha(i)) cos(alpha(i))]*tempU_inf(:,i)+airfoilRot*artU_inf(:,i);
+        alpha_aero(i) = atan(vLoc(2,i)/vLoc(1,i));
+        artU_infMag(i) = norm(vLoc(:,i),2);
+    end
     
-    masterState(count) = setupState6_24_2015(alpha_aero,alpha_root,beta,artU_inf,airSpeed,airDensity);
+%     tempAlpha_aero = atan((ActLoc(1)^2*[flipud(staticVel(5:5:end));staticVel(5:5:end)]+airSpeed*sin(alpha))./(airSpeed*cos(alpha)));
+%     alpha_aero = [tempAlpha_aero(1:SegNum/2);alpha_root*ones(numSpanB,1);tempAlpha_aero(SegNum/2+1:end)];
+    
+    masterState(count) = setupState6_24_2015(alpha_aero,alpha_root,beta,artU_infMag,airSpeed,airDensity);
     masterGeo(count) = setupGeo6_15_2015([ActLoc(1),0,ActLoc(2)],[centroid(1),0,centroid(2)],sum(L),cordNum,SegNum);
     masterLattice(count) = generateLattice6_24_2015(SegNum,Z,Phiz,X,Phix,Theta,cord,masterGeo(count),cordNum,L,bw,cord,noseH,0,numSpanB,masterState(count));
     results = dynamicSolver6_23_2015(masterState(count),masterGeo(count),masterLattice(count));
