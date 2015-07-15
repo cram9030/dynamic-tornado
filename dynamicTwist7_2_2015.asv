@@ -110,19 +110,15 @@ for t = twist(:,1)'
     for j = 1:SegNum
         alpha(j) = 0.5*Theta(j+1)+0.5*Theta(j);
     end
-    %potentiall uncomment this later if I determine that the twist does
-    %need to be coupled with the angle of attack
-    %alpha = alpha_root*ones(cordNum*SegNum,1);%-alpha;
+    alpha = alpha_root*ones(SegNum,1);%-alpha;
     
     %Calculate artificial airspeed and aeroelastic angle of attack
     airSpeed = 0.3048*sqrt(2*q(count)/airDensity);
     tempU_inf = [airSpeed*ones(1,cordNum*(SegNum+numSpanB));zeros(1,cordNum*(SegNum+numSpanB))];
-    tempArtU_inf = zeros(2,SegNum*cordNum);
-    for i = 0:cordNum-1
-        tempArtU_inf(:,SegNum*i+1:SegNum*(i+1)) = [zeros(1,SegNum);norm(ActLoc,2)*[flipud(staticVel(5:5:end));staticVel(5:5:end)]'];
-    end
-    artU_inf = [tempArtU_inf,zeros(2,numSpanB*cordNum)];
-    alpha = [alpha_root*ones(cordNum*SegNum,1);alpha_root*ones(numSpanB*cordNum,1)];
+    tempArtU_inf = zeros(2,
+    tempArtU_inf = [zeros(1,cordNum*SegNum);norm(ActLoc,2)*[flipud(staticVel(5:5:end));staticVel(5:5:end)]'];
+    artU_inf = [tempArtU_inf,zeros(2,numSpanB)];
+    alpha = [alpha;alpha_root*ones(numSpanB,1)];
     for i = 1:length(artU_inf)
         vLoc(:,i) = [cos(alpha(i)) -sin(alpha(i));sin(alpha(i)) cos(alpha(i))]*tempU_inf(:,i)+airfoilRot*artU_inf(:,i);
         alpha_aero(i) = atan(vLoc(2,i)/vLoc(1,i));

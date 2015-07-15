@@ -57,11 +57,7 @@ end
 
 %%%%
 %Steady state boundary condition column
-wind=([V.*cos(state.alpha).*cos(state.betha) -V.*cos(state.alpha).*sin(state.betha) V.*sin(state.alpha)]);
-Wind = [];
-for i = 1:geo.nx
-    Wind=[Wind;wind];
-end
+Wind=([V.*cos(state.alpha).*cos(state.betha) -V.*cos(state.alpha).*sin(state.betha) V.*sin(state.alpha)]);
 
 for i=1:a
    Rot(i,:)=cross((lattice.COLLOC(i,:)-geo.CG),[state.P state.Q state.R]);

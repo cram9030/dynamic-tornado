@@ -116,10 +116,6 @@ for j=1:nofderiv
     G(:,3)=gamma(:,j).*lehat(:,3);
 
     wind=([state.U_inf.*cos(state.alpha_root).*cos(state.betha) -state.U_inf.*cos(state.alpha_root).*sin(state.betha) state.U_inf.*sin(state.alpha_root)]);
-%     wind1 = [];
-%     for i = 1:geo.nx
-%         wind1=[wind1;wind];
-%     end
 
     for i=1:a
         Wind(i,:)=wind-squeeze(IW(i,j,:))';
