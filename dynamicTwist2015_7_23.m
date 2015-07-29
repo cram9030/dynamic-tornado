@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [masterState,masterLattice,masterGeo,masterResults,ref,CL,CD,LD,forceTwist] = dynamicTwist7_2_2015(M,C,K,SegNum,halfWingLength,cord,centroid,ActLoc,cordNum,bw,bc,noseH,zb,alpha_root,numSpanB,beta,q,airDensity,twist,Cdp)
+function [masterState,masterLattice,masterGeo,masterResults,ref,CL,CD,LD,forceTwist] = dynamicTwist2015_7_23(M,C,K,SegNum,halfWingLength,cord,centroid,ActLoc,cordNum,bw,noseH,alpha_root,numSpanB,beta,q,airDensity,twist,Cdp)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % dynamicTwist6_23_2015: Function for Dynamic TORNADO						
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -37,17 +37,12 @@ function [masterState,masterLattice,masterGeo,masterResults,ref,CL,CD,LD,forceTw
 %           LD - array lift/drag ratio at the times from twist input
 %           forceTwist - array of required torque for specified tip twist
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+time = cputime;
 
 %Intialize clamped boundary condition for structure arrays
 K = K(6:end,6:end);
 M = M(6:end,6:end);
 C = C(6:end,6:end);
-
-%Intialize temporary variables
-tempK = zeros(size(K));
-tempTwist = zeros(length(tempK),1);
-tempRotVel = zeros(length(tempK),1);
-States = zeros(5*(SegNum+1),1);
 
 %Initalizing output variables
 forceTwist = zeros(length(twist),1);
@@ -58,20 +53,29 @@ LD = zeros(length(twist),1);
 %Intialize length, airspeed, and refrence
 L = 2*halfWingLength/SegNum*ones(SegNum,1);
 [ref]=setRef6_15(L,cord,zeros(1,3));
-phi = -atan(ActLoc(1)/ActLoc(2));
-airfoilRot = [cos(phi) -sin(phi);sin(phi) cos(phi)];
+airfoilRot = zeros(2,2,3);
+for i = 1:cordNum
+    phi = -atan(ActLoc(2)/(ActLoc(1)-((i-1)*cord/cordNum)+.75*cord/cordNum));
+    airfoilRot(:,:,i) = [cos(phi) -sin(phi);sin(phi) cos(phi)];
+end
 
 %Convert alpha_root from degrees to radian
 alpha_root = alpha_root*pi/180;
 
-count = 1;
-for t = twist(:,1)'
+for count = 1:length(twist(:,1)')
     %Initialize alphas, Dihedrial angle, and forces to zero
     DiHiAng = zeros(SegNum,1);
     alpha = zeros(SegNum,1);
     vLoc = zeros(2,SegNum+numSpanB);
     alpha_aero = zeros(SegNum+numSpanB,1);
     artU_infMag = zeros(SegNum+numSpanB,1);
+    
+    %Intialize temporary variables
+    tempK = zeros(size(K));
+    tempTwist = zeros(length(tempK),1);
+    tempRotVel = zeros(length(tempK),1);
+    States = zeros(5*(SegNum+1),1);
+
     
     %Determine twist of wing based off of perscribed tip twist
     tipTwist = twist(count,2);
@@ -110,17 +114,21 @@ for t = twist(:,1)'
     for j = 1:SegNum
         alpha(j) = 0.5*Theta(j+1)+0.5*Theta(j);
     end
-    alpha = alpha_root*ones(SegNum,1);%-alpha;
+    %potentiall uncomment this later if I determine that the twist does
+    %need to be coupled with the angle of attack
+    %alpha = alpha_root*ones(cordNum*SegNum,1)-alpha;
     
     %Calculate artificial airspeed and aeroelastic angle of attack
     airSpeed = 0.3048*sqrt(2*q(count)/airDensity);
     tempU_inf = [airSpeed*ones(1,cordNum*(SegNum+numSpanB));zeros(1,cordNum*(SegNum+numSpanB))];
-    tempArtU_inf = zeros(2,
-    tempArtU_inf = [zeros(1,cordNum*SegNum);norm(ActLoc,2)*[flipud(staticVel(5:5:end));staticVel(5:5:end)]'];
-    artU_inf = [tempArtU_inf,zeros(2,numSpanB)];
-    alpha = [alpha;alpha_root*ones(numSpanB,1)];
+    tempArtU_inf = zeros(2,SegNum*cordNum);
+    for i = 0:cordNum-1
+        tempArtU_inf(:,SegNum*i+1:SegNum*(i+1)) = airfoilRot(:,:,i+1)*[zeros(1,SegNum);norm([ActLoc(1);ActLoc(2)-(i*cord/cordNum)+.75*cord/cordNum],2)*[flipud(staticVel(5:5:end));staticVel(5:5:end)]'];
+    end
+    artU_inf = [tempArtU_inf,zeros(2,numSpanB*cordNum)];
+    alpha = [alpha_root*ones(cordNum*SegNum,1);alpha_root*ones(numSpanB*cordNum,1)];
     for i = 1:length(artU_inf)
-        vLoc(:,i) = [cos(alpha(i)) -sin(alpha(i));sin(alpha(i)) cos(alpha(i))]*tempU_inf(:,i)+airfoilRot*artU_inf(:,i);
+        vLoc(:,i) = [cos(alpha(i)) -sin(alpha(i));sin(alpha(i)) cos(alpha(i))]*tempU_inf(:,i)+artU_inf(:,i);
         alpha_aero(i) = atan(vLoc(2,i)/vLoc(1,i));
         artU_infMag(i) = norm(vLoc(:,i),2);
     end
@@ -133,6 +141,6 @@ for t = twist(:,1)'
     CL(count) = masterResults(count).CL;
     CD(count) = masterResults(count).CD+interp1(Cdp(:,1),Cdp(:,2),tipTwist);
     LD(count) = CL(count)/CD(count);
-    disp(['Precent Complete: ',num2str(count/length(twist)*100)])
-    count = count + 1;
+    %disp(['Precent Complete: ',num2str(count/length(twist)*100)])
 end
+disp(['Time elapsed: ',num2str(cputime-time)])

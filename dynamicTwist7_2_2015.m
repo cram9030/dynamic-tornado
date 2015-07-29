@@ -37,17 +37,12 @@ function [masterState,masterLattice,masterGeo,masterResults,ref,CL,CD,LD,forceTw
 %           LD - array lift/drag ratio at the times from twist input
 %           forceTwist - array of required torque for specified tip twist
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+time = cputime;
 
 %Intialize clamped boundary condition for structure arrays
 K = K(6:end,6:end);
 M = M(6:end,6:end);
 C = C(6:end,6:end);
-
-%Intialize temporary variables
-tempK = zeros(size(K));
-tempTwist = zeros(length(tempK),1);
-tempRotVel = zeros(length(tempK),1);
-States = zeros(5*(SegNum+1),1);
 
 %Initalizing output variables
 forceTwist = zeros(length(twist),1);
@@ -58,20 +53,26 @@ LD = zeros(length(twist),1);
 %Intialize length, airspeed, and refrence
 L = 2*halfWingLength/SegNum*ones(SegNum,1);
 [ref]=setRef6_15(L,cord,zeros(1,3));
-phi = -atan(ActLoc(1)/ActLoc(2));
+phi = -atan(ActLoc(2)/ActLoc(1));
 airfoilRot = [cos(phi) -sin(phi);sin(phi) cos(phi)];
 
 %Convert alpha_root from degrees to radian
 alpha_root = alpha_root*pi/180;
 
-count = 1;
-for t = twist(:,1)'
+for count = 1:length(twist(:,1)')
     %Initialize alphas, Dihedrial angle, and forces to zero
     DiHiAng = zeros(SegNum,1);
     alpha = zeros(SegNum,1);
     vLoc = zeros(2,SegNum+numSpanB);
     alpha_aero = zeros(SegNum+numSpanB,1);
     artU_infMag = zeros(SegNum+numSpanB,1);
+    
+    %Intialize temporary variables
+    tempK = zeros(size(K));
+    tempTwist = zeros(length(tempK),1);
+    tempRotVel = zeros(length(tempK),1);
+    States = zeros(5*(SegNum+1),1);
+
     
     %Determine twist of wing based off of perscribed tip twist
     tipTwist = twist(count,2);
@@ -112,7 +113,7 @@ for t = twist(:,1)'
     end
     %potentiall uncomment this later if I determine that the twist does
     %need to be coupled with the angle of attack
-    %alpha = alpha_root*ones(cordNum*SegNum,1);%-alpha;
+    %alpha = alpha_root*ones(cordNum*SegNum,1)-alpha;
     
     %Calculate artificial airspeed and aeroelastic angle of attack
     airSpeed = 0.3048*sqrt(2*q(count)/airDensity);
@@ -137,6 +138,6 @@ for t = twist(:,1)'
     CL(count) = masterResults(count).CL;
     CD(count) = masterResults(count).CD+interp1(Cdp(:,1),Cdp(:,2),tipTwist);
     LD(count) = CL(count)/CD(count);
-    disp(['Precent Complete: ',num2str(count/length(twist)*100)])
-    count = count + 1;
+    %disp(['Precent Complete: ',num2str(count/length(twist)*100)])
 end
+disp(['Time elapsed: ',num2str(cputime-time)])

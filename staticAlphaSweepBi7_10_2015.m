@@ -51,12 +51,17 @@ for j = twistRange
         Z = States(1:5:5*(SegNum+1));
         
         %Calculate local anlge of attack for segments
-        alpha = zeros(SegNum,1);
+        alphaTemp = zeros(SegNum,1);
         for k = 1:SegNum
-            alpha(k) = 0.5*Theta(k+1)+0.5*Theta(k);
+            alphaTemp(k) = 0.5*Theta(k+1)+0.5*Theta(k);
         end
-        alpha = i*pi/180*ones(SegNum,1)-alpha;
-        alpha = [alpha;i*pi/180*ones(4*numSpanB,1)];
+        alphaTemp = i*pi/180*ones(SegNum,1);%-alphaTemp;
+        
+        alpha = zeros(SegNum*cordNum,1);
+        for k = 0:cordNum-1
+            alpha(SegNum*k+1:SegNum*(k+1)) = alphaTemp;
+        end
+        alpha = [alpha;i*pi/180*ones(2*cordNum*numSpanB,1)];
         
         masterState(j-min(twistRange)+1,i-min(alphaRange)+1) = setupState6_24_2015(alpha,i*pi/180,beta,airSpeed*ones(size(alpha)),airSpeed,airDensity);
         masterGeo(j-min(twistRange)+1,i-min(alphaRange)+1) = setupGeo6_15_2015([ActLoc(1),0,ActLoc(2)],[centroid(1),0,centroid(2)],sum(L),cordNum,SegNum);

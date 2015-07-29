@@ -162,49 +162,49 @@ for i = 1:cordNum
     DiHiAng = [DiHiAng;zeros(numSpanB,1)];
 end
 
-%Create Left side of the body
-for i = 1:cordNum
-    zmb = [zmb;[bh/(2*numSpanB):bh/numSpanB:bh]'+zb-bh/2];
-    ymb = [ymb;-bw/4*ones(numSpanB,1)];
-    x_quart = bc/cordNum*(i-.75)-noseH;
-    x_3quart = bc/cordNum*(i-.25)-noseH;
-    xmb = [xmb;x_3quart*ones(numSpanB,1)];
-    x1n = [x1n;x_quart*ones(numSpanB,1)];
-    x2n = [x2n;x_quart*ones(numSpanB,1)];
-    xTrail = [xTrail;(bc/cordNum*i-noseH)*ones(numSpanB,1)];
-    xLead = [xLead;(bc/cordNum*(i-1)-noseH)*ones(numSpanB,1)];
-    y1n = [y1n;-bw/4*ones(numSpanB,1)];
-    y2n = [y2n;-bw/4*ones(numSpanB,1)];
-    z1n = [z1n;[-bh/2:bh/numSpanB:bh/2*(1-1/numSpanB)]'+zb];
-    z2n = [z2n;[bh/numSpanB-bh/2:bh/numSpanB:bh/2]'+zb];
-    zLeadL = [zLeadL;[-bh/2:bh/numSpanB:bh/2*(1-1/numSpanB)]'+zb];
-    zLeadR = [zLeadR;[bh/numSpanB-bh/2:bh/numSpanB:bh/2]'+zb];
-    zTrailL = [zTrailL;[-bh/2:bh/numSpanB:bh/2*(1-1/numSpanB)]'+zb];
-    zTrailR = [zTrailR;[bh/numSpanB-bh/2:bh/numSpanB:bh/2]'+zb];
-    DiHiAng = [DiHiAng;0*ones(numSpanB,1)];
-end
-
-%Create Right side of the body
-for i = 1:cordNum
-    zmb = [zmb;[bh/(2*numSpanB):bh/numSpanB:bh]'+zb-bh/2];
-    ymb = [ymb;ones(numSpanB,1)*bw/4];
-    x_quart = bc/cordNum*(i-.75)-noseH;
-    x_3quart = bc/cordNum*(i-.25)-noseH;
-    xmb = [xmb;x_3quart*ones(numSpanB,1)];
-    x1n = [x1n;x_quart*ones(numSpanB,1)];
-    x2n = [x2n;x_quart*ones(numSpanB,1)];
-    xTrail = [xTrail;(bc/cordNum*i-noseH)*ones(numSpanB,1)];
-    xLead = [xLead;(bc/cordNum*(i-1)-noseH)*ones(numSpanB,1)];
-    y1n = [y1n;ones(numSpanB,1)*bw/4];
-    y2n = [y2n;ones(numSpanB,1)*bw/4];
-    z1n = [z1n;[-bh/2:bh/numSpanB:bh/2*(1-1/numSpanB)]'+zb];
-    z2n = [z2n;[bh/numSpanB-bh/2:bh/numSpanB:bh/2]'+zb];
-    zLeadL = [zLeadL;[-bh/2:bh/numSpanB:bh/2*(1-1/numSpanB)]'+zb];
-    zLeadR = [zLeadR;[bh/numSpanB-bh/2:bh/numSpanB:bh/2]'+zb];
-    zTrailL = [zTrailL;[-bh/2:bh/numSpanB:bh/2*(1-1/numSpanB)]'+zb];
-    zTrailR = [zTrailR;[bh/numSpanB-bh/2:bh/numSpanB:bh/2]'+zb];
-    DiHiAng = [DiHiAng;0*ones(numSpanB,1)];
-end
+% %Create Left side of the body
+% for i = 1:cordNum
+%     zmb = [zmb;[bh/(2*numSpanB):bh/numSpanB:bh]'+zb-bh/2];
+%     ymb = [ymb;-bw/4*ones(numSpanB,1)];
+%     x_quart = bc/cordNum*(i-.75)-noseH;
+%     x_3quart = bc/cordNum*(i-.25)-noseH;
+%     xmb = [xmb;x_3quart*ones(numSpanB,1)];
+%     x1n = [x1n;x_quart*ones(numSpanB,1)];
+%     x2n = [x2n;x_quart*ones(numSpanB,1)];
+%     xTrail = [xTrail;(bc/cordNum*i-noseH)*ones(numSpanB,1)];
+%     xLead = [xLead;(bc/cordNum*(i-1)-noseH)*ones(numSpanB,1)];
+%     y1n = [y1n;-bw/4*ones(numSpanB,1)];
+%     y2n = [y2n;-bw/4*ones(numSpanB,1)];
+%     z1n = [z1n;[-bh/2:bh/numSpanB:bh/2*(1-1/numSpanB)]'+zb];
+%     z2n = [z2n;[bh/numSpanB-bh/2:bh/numSpanB:bh/2]'+zb];
+%     zLeadL = [zLeadL;[-bh/2:bh/numSpanB:bh/2*(1-1/numSpanB)]'+zb];
+%     zLeadR = [zLeadR;[bh/numSpanB-bh/2:bh/numSpanB:bh/2]'+zb];
+%     zTrailL = [zTrailL;[-bh/2:bh/numSpanB:bh/2*(1-1/numSpanB)]'+zb];
+%     zTrailR = [zTrailR;[bh/numSpanB-bh/2:bh/numSpanB:bh/2]'+zb];
+%     DiHiAng = [DiHiAng;0*ones(numSpanB,1)];
+% end
+% 
+% %Create Right side of the body
+% for i = 1:cordNum
+%     zmb = [zmb;[bh/(2*numSpanB):bh/numSpanB:bh]'+zb-bh/2];
+%     ymb = [ymb;ones(numSpanB,1)*bw/4];
+%     x_quart = bc/cordNum*(i-.75)-noseH;
+%     x_3quart = bc/cordNum*(i-.25)-noseH;
+%     xmb = [xmb;x_3quart*ones(numSpanB,1)];
+%     x1n = [x1n;x_quart*ones(numSpanB,1)];
+%     x2n = [x2n;x_quart*ones(numSpanB,1)];
+%     xTrail = [xTrail;(bc/cordNum*i-noseH)*ones(numSpanB,1)];
+%     xLead = [xLead;(bc/cordNum*(i-1)-noseH)*ones(numSpanB,1)];
+%     y1n = [y1n;ones(numSpanB,1)*bw/4];
+%     y2n = [y2n;ones(numSpanB,1)*bw/4];
+%     z1n = [z1n;[-bh/2:bh/numSpanB:bh/2*(1-1/numSpanB)]'+zb];
+%     z2n = [z2n;[bh/numSpanB-bh/2:bh/numSpanB:bh/2]'+zb];
+%     zLeadL = [zLeadL;[-bh/2:bh/numSpanB:bh/2*(1-1/numSpanB)]'+zb];
+%     zLeadR = [zLeadR;[bh/numSpanB-bh/2:bh/numSpanB:bh/2]'+zb];
+%     zTrailL = [zTrailL;[-bh/2:bh/numSpanB:bh/2*(1-1/numSpanB)]'+zb];
+%     zTrailR = [zTrailR;[bh/numSpanB-bh/2:bh/numSpanB:bh/2]'+zb];
+%     DiHiAng = [DiHiAng;0*ones(numSpanB,1)];
+% end
 
 %Create nose "cone"
 xNose = [];
@@ -229,7 +229,7 @@ lattice.XYZ(:,:,1) = [[xLead,xLead,xTrail,xTrail,xLead];xNose];
 lattice.XYZ(:,:,2) = [[y1n,y2n,y2n,y1n,y1n];yNose];
 lattice.XYZ(:,:,3) = [[zLeadR,zLeadL,zTrailL,zTrailR,zLeadR];zNose];
 
-S = [zeros(1,cordNum*(SegNum+numSpanB)),pi*ones(1,cordNum*numSpanB),zeros(1,cordNum*numSpanB),pi*ones(1,cordNum*numSpanB),sNose];
+S = [zeros(1,cordNum*(SegNum+numSpanB)),pi*ones(1,cordNum*numSpanB),sNose];%,zeros(1,cordNum*numSpanB),pi*ones(1,cordNum*numSpanB),sNose];
 lattice.N=normals4(lattice.COLLOC,lattice.VORTEX,S);
 
 [ref]=setRef6_15(L,cord,geo.CG);

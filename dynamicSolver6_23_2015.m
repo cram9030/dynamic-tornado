@@ -116,9 +116,10 @@ for j=1:nofderiv
     G(:,3)=gamma(:,j).*lehat(:,3);
 
     wind=([state.U_inf.*cos(state.alpha_root).*cos(state.betha) -state.U_inf.*cos(state.alpha_root).*sin(state.betha) state.U_inf.*sin(state.alpha_root)]);
-
+    V=state.AS;
+    Wind=([V.*cos(state.alpha).*cos(state.betha) -V.*cos(state.alpha).*sin(state.betha) V.*sin(state.alpha)])-reshape(IW(:,j,:),[length(IW),3]);
     for i=1:a
-        Wind(i,:)=wind-squeeze(IW(i,j,:))';
+        %Wind(i,:)=wind-squeeze(IW(i,j,:))';
         Rot(i,:)=cross((lattice.COLLOC(i,:)-geo.CG),[state.P state.Q state.R]); %Calculating rotations
     end                                   %^^^^^^^---new stuff in T131         %Thanks Luca for pointing out the error here
 

@@ -122,13 +122,13 @@ DiHiAng = DiHiAng';
 
 for i = 1:cordNum
     ymb = [ymb;[-flipud([bw/(2*numSpanB):bw/numSpanB:bw/2]');[bw/(2*numSpanB):bw/numSpanB:bw/2]']];
-    x_quart = bc/cordNum*(i-.75)-noseH;
-    x_3quart = bc/cordNum*(i-.25)-noseH;
+    x_quart = bc/cordNum*(i-.75);
+    x_3quart = bc/cordNum*(i-.25);
     xmb = [xmb;x_3quart*ones(numSpanB,1)];
     x1n = [x1n;x_quart*ones(numSpanB,1)];
     x2n = [x2n;x_quart*ones(numSpanB,1)];
-    xTrail = [xTrail;(bc/cordNum*i-noseH)*ones(numSpanB,1)];
-    xLead = [xLead;(bc/cordNum*(i-1)-noseH)*ones(numSpanB,1)];
+    xTrail = [xTrail;(bc/cordNum*i)*ones(numSpanB,1)];
+    xLead = [xLead;(bc/cordNum*(i-1))*ones(numSpanB,1)];
     y1n = [y1n;[-flipud([bw/numSpanB:bw/numSpanB:bw/2]');[0:bw/numSpanB:bw/2-bw/numSpanB]']];
     y2n = [y2n;[-flipud([bw/numSpanB:bw/numSpanB:bw/2-bw/numSpanB]');[0:bw/numSpanB:bw/2]']];
     z1n = [z1n;zb*ones(numSpanB,1)];
