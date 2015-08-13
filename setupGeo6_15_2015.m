@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [geo] = setupGeo6_15_2015(ref,CG,span,cordNum,SegNum)
+function [geo] = setupGeo6_15_2015(ref,CG,span,cordNum,SegNum,nwing)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % setupState5_7_2015: Function for Dynamic TORNADO						
@@ -18,6 +18,7 @@ function [geo] = setupGeo6_15_2015(ref,CG,span,cordNum,SegNum)
 % Calls:	
 % Inputs:   ref - refrence point
 %           CG - center of gravity
+%           span - array of wing spans
 % Output:   geo - geomotry structure containing:
 %                   ref - refrence point
 %                   CG - center of gravity
@@ -40,7 +41,7 @@ geo.b = span;
 geo.nx = cordNum;
 geo.ny = SegNum;
 geo.numSpanW = SegNum;
-geo.nwing = 1;
+geo.nwing = nwing;
 geo.startx = 0;
 geo.starty = 0;
 geo.startz = 0;
