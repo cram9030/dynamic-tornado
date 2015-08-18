@@ -6,10 +6,9 @@ function [geo] = setupGeo6_15_2015(ref,CG,span,cordNum,SegNum,nwing)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This function creates the geo structure for the geomotry
 % NOTE: The traditional version of TORNADO has all of the wing geomotry
-% contained with in the geo structure. In Dynamic TORNADO that information
-% is soley contained in the Lattice and the Geo is only used for refrence
-% points and CG but might need to be updated latter to work correctly with
-% other parts of pre-existing code
+% contained with in the geo structure.
+%       The Wings array of wing structures must have the first wing as the
+%       primary wing or else spanwise calculation of results will be off
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %	Author:	Nick Cramer, UCSC, Department of Computer Engineering			
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

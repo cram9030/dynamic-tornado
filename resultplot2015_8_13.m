@@ -1,4 +1,4 @@
-function []=resultplot2015(JID,results,geo,lattice,state,ref);
+function []=resultplot2015_8_13(JID,results,geo,lattice,state,ref);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Copyright (C) 1999, 2007 Tomas Melin
 %
@@ -83,7 +83,7 @@ end
 try
    figure(10)
    hold on, grid on
-   plot(results.ystation(:,1),results.ForcePerMeter(:,1));
+   plot(results.spanResults(1).ystation(:,1),results.spanResults(1).ForcePerMeter(:,1));
   title('Spanload on main wing');
   ylabel('Force per meter');
   xlabel('Spanstation')
@@ -94,7 +94,7 @@ try
     
         figure(11)
         hold on, grid on
-        plot(results.ystation(:,1),results.CL_local(:,1));
+        plot(results.spanResults(1).ystation(:,1),results.spanResults(1).CL_local(:,1));
         title('Local CL on main wing');
         ylabel('CL');
         xlabel('Spanstation')
@@ -107,7 +107,7 @@ try
    hold on, grid on
    
    
-   plot(results.ystation(:,1)./(ref.b_ref/2),results.CL_local(:,1)./results.CL);
+   plot(results.spanResults(1).ystation(:,1)./(ref.b_ref/2),results.spanResults(1).CL_local(:,1)./results.CL);
    
    
    title('Normalized Local CL on main wing');
@@ -125,12 +125,12 @@ try
    title('Bending moment on main wing');   
    ylabel('Bending moment, M_b, [Nm]');
    xlabel('Spanstation, y, [m]')
-   plot(results.ystation,results.BendingMoment)
+   plot(results.spanResults(1).ystation,results.spanResults(1).BendingMoment)
    
 
 
    figure(14)
-    plot(results.ystation,results.ShearForce) ;
+    plot(results.spanResults(1).ystation,results.spanResults(1).ShearForce) ;
     hold on, grid on
    title('Shear force on main wing');   
    ylabel('Shear force, F_s, [N]');
@@ -199,9 +199,9 @@ text(0.7,.4,'Cn ');             text(0.8,.4,num2str(results.Cn))
 text(0.7,.35,'Cl ');        	text(0.8,.35,num2str(results.Cl))
 
 text(0,.2,'STATE: ');
-text(0,.15,'\alpha [deg]: ');   text(.15,.15,num2str(state.alpha*180/pi));
+text(0,.15,'\alpha [deg]: ');   text(.15,.15,num2str(state.alpha_root*180/pi));
 text(0,.1,'\beta [deg]: ');     text(.15,.1,num2str(state.betha*180/pi));
-text(0,.05,'Airspeed: ');       text(.15,.05,num2str(state.AS));
+text(0,.05,'Airspeed: ');       text(.15,.05,num2str(state.U_inf));
 try
  text(0,.0,'Altitude: ');       text(.15,.0,num2str(state.ALT));
 end
@@ -222,7 +222,7 @@ end
 
 
 [void sos voild]=ISAtmosphere(state.ALT);
-Mach=state.AS/sos;
+Mach=state.U_inf/sos;
 text(0.3,-.05,'Mach: ');    text(.45,-.05,num2str(Mach));
 
 %%%%%
@@ -238,9 +238,9 @@ text(0,.85,'Reference chord: ');    text(0.25,.85,num2str(ref.C_mac));
 text(0,.8,'Reference span: ');      text(0.25,.8,num2str(ref.b_ref));
   
    
-text(0.4,.90,'\alpha [deg]: '); 	text(.55,.9,num2str(state.alpha*180/pi));
+text(0.4,.90,'\alpha [deg]: '); 	text(.55,.9,num2str(state.alpha_root*180/pi));
 text(0.4,.85, '\beta [deg]: ');     text(.55,.85,num2str(state.betha*180/pi));
-text(0.4,.8,'Airspeed: ');          text(.55,.8,num2str(state.AS));
+text(0.4,.8,'Airspeed: ');          text(.55,.8,num2str(state.U_inf));
 
 text(0.65,.9, 'P [rad/s]: ');  		text(.8,.9,num2str(state.P));
 text(0.65,.85,'Q[rad/s]: '); 		text(.8,.85,num2str(state.Q));
@@ -307,9 +307,9 @@ text(0,.90,'Reference area: ');	text(0.25,0.90,num2str(ref.S_ref));
 text(0,.85,'Reference chord: ');text(0.25,.85,num2str(ref.C_mac));
 text(0,.8,'Reference span: ');text(0.25,.8,num2str(ref.b_ref));
    
-text(0.4,.90,'\alpha: '); 	text(.55,.9,num2str(state.alpha*180/pi));
+text(0.4,.90,'\alpha: '); 	text(.55,.9,num2str(state.alpha_root*180/pi));
 text(0.4,.85,'\beta: ');     text(.55,.85,num2str(state.betha*180/pi));
-text(0.4,.8,'Airspeed: ');  text(.55,.8,num2str(state.AS));
+text(0.4,.8,'Airspeed: ');  text(.55,.8,num2str(state.U_inf));
 
 text(0.65,.9,'P: ');  		text(.8,.9,num2str(state.P));
 text(0.65,.85,'Q: '); 		text(.8,.85,num2str(state.Q));
