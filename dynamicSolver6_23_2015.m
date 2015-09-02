@@ -30,7 +30,7 @@ function [results]=dynamicSolver6_23_2015(state,geo,lattice)
 % Example:
 %
 %   [results]=solver8(results,state,geo,lattice,ref);
-%
+%e 
 % Calls:
 %           Setboundary    
 %

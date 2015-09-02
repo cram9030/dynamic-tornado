@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [geo] = setupGeo2015_8_10(ref,CG,nwing,Wings)
+function [geo] = setupGeo2015_8_10(ref_point,CG,nwing,Wings)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % setupState5_7_2015: Function for Dynamic TORNADO						
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -53,7 +53,7 @@ function [geo] = setupGeo2015_8_10(ref,CG,nwing,Wings)
 %                                   start - wing start location
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-geo.ref_point = ref;
+geo.ref_point = ref_point;
 geo.CG = CG;
 geo.nwing = nwing;
 geo.symetric = 0;
