@@ -510,10 +510,6 @@ else
             beta = atan2(w,v);
             
             %Create Rotation Matrix about the hinge vector
-%             rotationMatrix = (1/L)*[(u^2+(v^2+w^2)*cos(angle)),u*v*(1-cos(angle))-w*sqrt(L)*sin(angle),u*w*(1-cos(angle))+v*sqrt(L)*sin(angle),(a*(v^2+w^2)-u*(b*v+c*w))*(1-cos(angle))-(b*w-c*v)*sqrt(L)*sin(angle);...
-%                 u*v*(1-cos(angle))+w*sqrt(L)*sin(angle),v^2+(u^2+w^2)*cos(angle),v*w*(1-cos(angle))-u*sqrt(L)*sin(angle),(b*(u^2+w^2)-v*(a*u+c*w))*(1-cos(angle))+(c*u-a*w)*sqrt(L)*sin(angle);...
-%                 u*w*(1-cos(angle))-v*sqrt(L)*sin(angle),v*w*(1-cos(angle))+u*sqrt(L)*sin(angle),w^2+(u^2+v^2)*cos(angle),(c*(u^2+v^2)-w*(a*u+b*v))*(1-cos(angle))+(a*v-b*u)*sqrt(L)*sin(angle);...
-%                 0,0,0,1];
             Tabc = [eye(3),[-a;-b;-c];[0,0,0,1]];
             Rz = [cos(alpha),-sin(alpha),0,0;sin(alpha),cos(alpha),0,0;zeros(2),eye(2)];
             Rx = [1,0,0,0;0,cos(beta),-sin(beta),0;0,sin(beta),cos(beta),0;0,0,0,1];

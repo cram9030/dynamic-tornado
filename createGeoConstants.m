@@ -23,10 +23,12 @@ function [centroid,I_z,I_x,J_z,CA] = createGeoConstants(AF,ActLoc)
 %           I_x - x area moment of inertia 
 %           J_z - combined rotational z area moment of inertia 
 %           CA - cross sectional area
+% Note: Accending/decending ordering is important when using trapz
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-CA = trapz(AF.UpperX,AF.UpperY-AF.LowerY);
-centroid = [1/CA*trapz(AF.UpperX,AF.UpperX.*(AF.UpperY-AF.LowerY)),0];
-I_x = trapz(AF.UpperX,(AF.UpperY-AF.LowerY).*(AF.UpperX-centroid(1)).^2)+CA*(ActLoc(1)-centroid(1))^2;
-I_z = 2*trapz(AF.LowerY,AF.UpperX.*AF.UpperY.^2)+CA*(ActLoc(2)-centroid(2))^2;
+CA = abs(trapz(AF.UpperX,AF.UpperY)+trapz(AF.LowerX,AF.LowerY));
+centroid = 1/CA*[-trapz(AF.UpperX,AF.UpperX.*AF.UpperY)-trapz(AF.LowerX,AF.LowerX.*AF.LowerY),-trapz(AF.UpperX,AF.UpperY.^2)-trapz(AF.LowerX,AF.LowerY.^2)];
+I_x = (-trapz(AF.UpperX,AF.UpperY.*(AF.UpperX-centroid(1)).^2)-trapz(AF.LowerX,AF.LowerY.*(AF.LowerX-centroid(1)).^2))+CA*(ActLoc(1)-centroid(1))^2;
+LowerY = interp1(AF.LowerX,AF.LowerY,AF.UpperX,'pchip');
+I_z = trapz(AF.UpperY,AF.UpperX.*AF.UpperY.^2)-2*trapz(AF.UpperY,AF.UpperX.*LowerY.*AF.UpperX)+trapz(AF.LowerY,AF.LowerX.*AF.LowerY.^2)+CA*(ActLoc(2)-centroid(2))^2;
 J_z = I_x+I_z;

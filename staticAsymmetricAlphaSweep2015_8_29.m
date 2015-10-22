@@ -1,4 +1,4 @@
-function [masterState,masterLattice,masterGeo,masterResults,ref,forceTwist,CL,CD] = staticAsymmetricAlphaSweep2015_8_29(M,C,K,SegNum,halfWingLength,cord,centroid,ActLoc,cordNum,bw,bc,noseH,zb,numSpanB,alphaRange,twistRange,beta,q,airDensity)
+function [masterState,masterLattice,masterGeo,masterResults,ref,forceTwist] = staticAsymmetricAlphaSweep2015_8_29(M,C,K,SegNum,halfWingLength,cord,centroid,ActLoc,cordNum,bw,bc,noseH,zb,numSpanB,alphaRange,twistRange,beta,q,airDensity)
 
 %alphaRange and twistRange must be in degrees
 

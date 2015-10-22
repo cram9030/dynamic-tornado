@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [geo] = setupGeo2015_8_10(ref_point,CG,nwing,Wings)
+function [geo] = setupGeo2015_8_10(ref_point,CG,Wings)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % setupState5_7_2015: Function for Dynamic TORNADO						
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -55,12 +55,12 @@ function [geo] = setupGeo2015_8_10(ref_point,CG,nwing,Wings)
 
 geo.ref_point = ref_point;
 geo.CG = CG;
-geo.nwing = nwing;
+geo.nwing = length(Wings);
 geo.symetric = 0;
 geo.Wings = Wings;
 geo.nx = 0;
 geo.ny = 0;
-for i = 1:nwing
+for i = 1:length(Wings)
     geo.nx = Wings(i).wing.cordNum+geo.nx;
     geo.ny = Wings(i).wing.SegNum+geo.ny;
 end
