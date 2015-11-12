@@ -99,18 +99,18 @@ results.CL_a=lemma(1)/(q*ref.S_ref);
 results.CD_a=lemma(2)/(q*ref.S_ref);
 results.CC_a=lemma(3)/(q*ref.S_ref);
 
-results.Cl_a=results.MOMENTS_alpha(1)/(q*ref.S_ref*ref.b_ref);
-results.Cm_a=results.MOMENTS_alpha(2)/(q*ref.S_ref*ref.C_mac);
-results.Cn_a=results.MOMENTS_alpha(3)/(q*ref.S_ref*ref.b_ref);
+results.Cl_a=results.dMOMENTS_alpha(1)/(q*ref.S_ref*ref.b_ref);
+results.Cm_a=results.dMOMENTS_alpha(2)/(q*ref.S_ref*ref.C_mac);
+results.Cn_a=results.dMOMENTS_alpha(3)/(q*ref.S_ref*ref.b_ref);
 
 lemma=B2WTransform*results.dFORCE_beta';
 results.CL_b=lemma(1)/(q*ref.S_ref);
 results.CD_b=lemma(2)/(q*ref.S_ref);
 results.CC_b=lemma(3)/(q*ref.S_ref);
 
-results.Cl_b=results.MOMENTS_beta(1)/(q*ref.S_ref*ref.b_ref);
-results.Cm_b=results.MOMENTS_beta(2)/(q*ref.S_ref*ref.C_mac);
-results.Cn_b=results.MOMENTS_beta(3)/(q*ref.S_ref*ref.b_ref);
+results.Cl_b=results.dMOMENTS_beta(1)/(q*ref.S_ref*ref.b_ref);
+results.Cm_b=results.dMOMENTS_beta(2)/(q*ref.S_ref*ref.C_mac);
+results.Cn_b=results.dMOMENTS_beta(3)/(q*ref.S_ref*ref.b_ref);
 
 %return   
 [results]=spanload6(results,geo,lattice,state);
