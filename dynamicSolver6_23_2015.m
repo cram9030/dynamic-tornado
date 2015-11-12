@@ -67,17 +67,17 @@ gamma=w2\rhs';
 
 
 
-    if state.pgcorr==1
-        %tdisp('Trying PG correction')
-        %Prandtl-Glauert compressibility correction
-        [state.rho sos p_1]=ISAtmosphere(state.ALT);
-        M=state.AS/sos;
-        corr=1/(sqrt(1-M^2));  
-        gamma=gamma*corr;
-        %Yeah, this part is not validated yet... or even published, but it
-        %seems to work. Do use it with caution though as the math rigour
-        %isnt there yet.   
-    end
+if state.pgcorr==1
+    %tdisp('Trying PG correction')
+    %Prandtl-Glauert compressibility correction
+    [state.rho sos p_1]=ISAtmosphere(state.ALT);
+    M=state.AS/sos;
+    corr=1/(sqrt(1-M^2));  
+    gamma=gamma*corr;
+    %Yeah, this part is not validated yet... or even published, but it
+    %seems to work. Do use it with caution though as the math rigour
+    %isnt there yet.   
+end
 
 
 
