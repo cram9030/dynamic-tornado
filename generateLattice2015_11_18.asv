@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [lattice] = generateLattice2015_10_6(geo,S_ref,C_ref,B_ref,mac_pos,state)
+function [lattice] = generateLattice2015_11_18(geo,S_ref,C_ref,B_ref,mac_pos,state)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % generateLattice6_24_2015: Function for Dynamic TORNADO						
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -93,6 +93,10 @@ zTrailR = [];
 zLeadR = [];
 zTrailL = [];
 zLeadL = [];
+yTrailR = [];
+yLeadR = [];
+yTrailL = [];
+yLeadL = [];
 y1n = [];
 y2n = [];
 z1n = [];
@@ -111,7 +115,8 @@ for k = 1:geo.nwing
         trail = geo.Wings(k).wing.meanCord(i+1,:)'*geo.Wings(k).wing.cord';
         lead = geo.Wings(k).wing.meanCord(i,:)'*geo.Wings(k).wing.cord';
         
-        [xm,ym,zm,x1n,x2n,xTrailR,xTrailL,xLeadR,xLeadL,y1n,y2n,z1n,z2n,zTrailR,zTrailL,zLeadR,zLeadL] = spanWisePopulate(geo.Wings(k).wing,quartCord,threeQuartCord,trail,lead,xm,ym,zm,x1n,x2n,xTrailR,xTrailL,xLeadR,xLeadL,y1n,y2n,z1n,z2n,zTrailR,zTrailL,zLeadR,zLeadL);
+        [xm,ym,zm,x1n,x2n,xTrailR,xTrailL,xLeadR,xLeadL,y1n,y2n,yTrailR,yTrailL,yLeadR,yLeadL,z1n,z2n,zTrailR,zTrailL,zLeadR,zLeadL] = ...
+            spanWisePopulate(geo.Wings(k).wing,SegCord,quartCord,threeQuartCord,trail,lead,xm,ym,zm,x1n,x2n,xTrailR,xTrailL,xLeadR,xLeadL,y1n,y2n,yTrailR,yTrailL,yLeadR,yLeadL,z1n,z2n,zTrailR,zTrailL,zLeadR,zLeadL);
     end
 end
 
@@ -122,7 +127,7 @@ lattice.VORTEX(:,:,2) = [y1n,y1n,y2n,y2n];
 lattice.VORTEX(:,:,3) = [z1n,z1n,z2n,z2n];
 
 lattice.XYZ(:,:,1) = [xLeadR,xLeadL,xTrailL,xTrailR,xLeadR];
-lattice.XYZ(:,:,2) = [y1n,y2n,y2n,y1n,y1n];
+lattice.XYZ(:,:,2) = [yLeadR,yLeadL,yTrailL,yTrailR,yTrailR];
 lattice.XYZ(:,:,3) = [zLeadR,zLeadL,zTrailL,zTrailR,zLeadR];
 
 S = zeros(1,geo.nx*geo.ny);
@@ -254,7 +259,7 @@ p2=P*p';
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [lattice]=wakesetup2(lattice,state,ref)
 infdist=config('infinity');
 if isempty(infdist)
@@ -301,7 +306,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [xm,ym,zm,x1n,x2n,xTrailR,xTrailL,xLeadR,xLeadL,y1n,y2n,z1n,z2n,zTrailR,zTrailL,zLeadR,zLeadL] = spanWisePopulate(wing,quartCord,threeQuartCord,trail,lead,xm,ym,zm,x1n,x2n,xTrailR,xTrailL,xLeadR,xLeadL,y1n,y2n,z1n,z2n,zTrailR,zTrailL,zLeadR,zLeadL)
+function [xm,ym,zm,x1n,x2n,xTrailR,xTrailL,xLeadR,xLeadL,y1n,y2n,yTrailR,yTrailL,yLeadR,yLeadL,z1n,z2n,zTrailR,zTrailL,zLeadR,zLeadL] = ...
+    spanWisePopulate(wing,SegCord,quartCord,threeQuartCord,trail,lead,xm,ym,zm,x1n,x2n,xTrailR,xTrailL,xLeadR,xLeadL,y1n,y2n,yTrailR,yTrailL,yLeadR,yLeadL,z1n,z2n,zTrailR,zTrailL,zLeadR,zLeadL)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % spanWisePopulate: polulates components for
 %   spanwise lattice section of wing
@@ -315,25 +321,25 @@ function [xm,ym,zm,x1n,x2n,xTrailR,xTrailL,xLeadR,xLeadL,y1n,y2n,z1n,z2n,zTrailR
 % Calls:		diag (MATLAB std fcn)								
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Inputs:    wing - Wing structure
-%                    meanCord - mean cord line
-%                    cord - cord length
-%                    span - wing span
-%                    L - Length array
-%                    SegNum - number of spanwise segments
-%                    cordNum - number of cordwise segments
-%                    Theta - wing twist array
-%                    Z - z displacement array
-%                    PhiZ - Z slope array
-%                    X - x displacement array
-%                    PhiX - x slope array
-%                    start - wing start location
-%                    Controls - array of control surfaces
-%                                surface - corners of the
-%                                control surface area
-%                                hinge - hinge location,
-%                                [x1,y1,x2,y2]
-%                                rotation - rotation degree
-%                                following right hand rule
+%                                   meanCord - mean cord line
+%                                   cord - cord length
+%                                   span - wing span
+%                                   L - Length array
+%                                   SegNum - number of spanwise segments
+%                                   cordNum - number of cordwise segments
+%                                   Theta - wing twist array
+%                                   Z - z displacement array
+%                                   PhiZ - Z slope array
+%                                   X - x displacement array
+%                                   PhiX - x slope array
+%                                   start - wing start location
+%                                   Controls - array of control surfaces
+%                                               surface - corners of the
+%                                               control surface area
+%                                               hinge - hinge location,
+%                                               [x1,y1,x2,y2]
+%                                               rotation - rotation degree
+%                                               following right hand rule
 %           quartCord - array of quarter cord coordninates
 %           threeQuartCord - array of three quarter cord coordinates
 %           trail - array of the trailing edge coordinates
@@ -357,6 +363,14 @@ function [xm,ym,zm,x1n,x2n,xTrailR,xTrailL,xLeadR,xLeadL,y1n,y2n,z1n,z2n,zTrailR
 %               horseshoe
 %           y2n - array of the y component for the right most point of the
 %               horseshoe
+%           yTrailR - array of the y component for the right most trailing
+%               edge of the panel
+%           yTrailL - array of the y component for the right most trailing
+%               edge of the panel
+%           yLeadR - array of the y component for the right most leading
+%               edge of the panel
+%           yLeadL - array of the y component for the left most trailing
+%               edge of the panel
 %           z1n - array of the z component for the left most point of the
 %               horseshoe
 %           z2n - array of the z component for the right most point of the
@@ -388,6 +402,14 @@ function [xm,ym,zm,x1n,x2n,xTrailR,xTrailL,xLeadR,xLeadL,y1n,y2n,z1n,z2n,zTrailR
 %               horseshoe
 %           y2n - array of the y component for the right most point of the
 %               horseshoe
+%           yTrailR - array of the y component for the right most trailing
+%               edge of the panel
+%           yTrailL - array of the y component for the right most trailing
+%               edge of the panel
+%           yLeadR - array of the y component for the right most leading
+%               edge of the panel
+%           yLeadL - array of the y component for the left most trailing
+%               edge of the panel
 %           z1n - array of the z component for the left most point of the
 %               horseshoe
 %           z2n - array of the z component for the right most point of the
@@ -402,49 +424,89 @@ function [xm,ym,zm,x1n,x2n,xTrailR,xTrailL,xLeadR,xLeadL,y1n,y2n,z1n,z2n,zTrailR
 %               edge of the panel
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%Calculate the y coordinates for panels
-y1nTemp = [-flipud([cumsum(wing.L(length(wing.L)/2:end-1))]);[0;cumsum(wing.L(length(wing.L)/2:end-2))]+wing.start(2)];
-y2nTemp = [-flipud([0;cumsum(wing.L(length(wing.L)/2:end-2))]);[cumsum(wing.L(length(wing.L)/2:end-1))]+wing.start(2)];
+%Update control sufrace part of the code to be the same forma
 
 %Check to see if there are any control surfaces
 if isempty(wing.Controls)
-    for j = 1:wing.SegNum
-        %Calculate the collocation point
-        alpha = 0.5*wing.Theta(j+1)+0.5*wing.Theta(j);
-        if j < (wing.SegNum-1)/2+1
-            zm = [zm;0.5*wing.Z(j+1)+.125*wing.PhiZ(j+1)+0.5*wing.Z(j)-0.125*wing.PhiZ(j)+[sin(alpha),cos(alpha)]*threeQuartCord(:,j)+wing.start(3)];
-            xm = [xm;0.5*wing.X(j+1)+.125*wing.PhiX(j+1)+0.5*wing.X(j)-0.125*wing.PhiX(j)+[cos(alpha),-sin(alpha)]*threeQuartCord(:,j)+wing.start(1)];
-            if j == 1
-                ym = [ym;-sum(wing.L)/2+wing.L(1)/2];
-            else
-                ym = [ym;ym(end)+wing.L(j-1)/2+wing.L(j)/2];
+    switch wing.plane
+        case 1
+            for j = 1:wing.SegNum
+                %Calculate the collocation point
+                alpha = 0.5*wing.Theta(j+1)+0.5*wing.Theta(j);
+                collocationCord = [interp1(wing.Y,SegCord(1,:),0.5*wing.Y(j+1)+0.5*wing.Y(j));...
+                    interp1(wing.Y,SegCord(2,:),0.5*wing.Y(j+1)+0.5*wing.Y(j))];
+                if j < (wing.SegNum-1)/2+1
+                    zm = [zm;0.5*wing.Z(j+1)+.125*wing.PhiZ(j+1)+0.5*wing.Z(j)-0.125*wing.PhiZ(j)+[sin(alpha),cos(alpha)]*(.75*collocationCord+(lead(:,j)+lead(:,j+1))/2)+wing.start(3)];
+                    xm = [xm;0.5*wing.X(j+1)+.125*wing.PhiX(j+1)+0.5*wing.X(j)-0.125*wing.PhiX(j)+[cos(alpha),-sin(alpha)]*(.75*collocationCord+(lead(:,j)+lead(:,j+1))/2)+wing.start(1)];
+                else
+                    zm = [zm;0.5*wing.Z(j)+.125*wing.PhiZ(j)+0.5*wing.Z(j+1)-0.125*wing.PhiZ(j+1)+[sin(alpha),cos(alpha)]*(.75*collocationCord+(lead(:,j)+lead(:,j+1))/2)+wing.start(3)];
+                    xm = [xm;0.5*wing.X(j)+.125*wing.PhiX(j)+0.5*wing.X(j+1)-0.125*wing.PhiX(j+1)+[cos(alpha),-sin(alpha)]*(.75*collocationCord+(lead(:,j)+lead(:,j+1))/2)+wing.start(1)];
+                end
+                ym = [ym;(wing.Y(j)+wing.Y(j+1))/2];
+                %Calculate X and Z corrdinated based off twist
+                x1n = [x1n;wing.X(j)+diag([cos(wing.Theta(j)),-sin(wing.Theta(j))]*quartCord(:,j))+wing.start(1)];
+                x2n = [x2n;wing.X(j+1)+diag([cos(wing.Theta(j+1)),-sin(wing.Theta(j+1))]*quartCord(:,j+1))+wing.start(1)];
+                xTrailR = [xTrailR;wing.X(j)+diag([cos(wing.Theta(j)),-sin(wing.Theta(j))]*trail(:,j))+wing.start(1)];
+                xTrailL = [xTrailL;wing.X(j+1)+diag([cos(wing.Theta(j+1)),-sin(wing.Theta(j+1))]*trail(:,j+1))+wing.start(1)];
+                xLeadR = [xLeadR;wing.X(j)+diag([cos(wing.Theta(j)),-sin(wing.Theta(j))]*lead(:,j))+wing.start(1)];
+                xLeadL = [xLeadL;wing.X(j+1)+diag([cos(wing.Theta(j+1)),-sin(wing.Theta(j+1))]*lead(:,j+1))+wing.start(1)];
+                %
+                z1n = [z1n;wing.Z(j)+diag([sin(wing.Theta(j)),cos(wing.Theta(j))]*quartCord(:,j))+wing.start(3)];
+                z2n = [z2n;wing.Z(j)+diag([sin(wing.Theta(j+1)),cos(wing.Theta(j+1))]*quartCord(:,j+1))+wing.start(3)];
+                zTrailR = [zTrailR;wing.Z(j)+diag([sin(wing.Theta(j)),cos(wing.Theta(j))]*trail(:,j))+wing.start(3)];
+                zTrailL = [zTrailL;wing.Z(j)+diag([sin(wing.Theta(j+1)),cos(wing.Theta(j+1))]*trail(:,j+1))+wing.start(3)];
+                zLeadR = [zLeadR;wing.Z(j)+diag([sin(wing.Theta(j)),cos(wing.Theta(j))]*lead(:,j))+wing.start(3)];
+                zLeadL = [zLeadL;wing.Z(j)+diag([sin(wing.Theta(j+1)),cos(wing.Theta(j+1))]*lead(:,j+1))+wing.start(3)];
             end
-        else
-            zm = [zm;0.5*wing.Z(j)+.125*wing.PhiZ(j)+0.5*wing.Z(j+1)-0.125*wing.PhiZ(j+1)+[sin(alpha),cos(alpha)]*threeQuartCord(:,j)+wing.start(3)];
-            xm = [xm;0.5*wing.X(j)+.125*wing.PhiX(j)+0.5*wing.X(j+1)-0.125*wing.PhiX(j+1)+[cos(alpha),-sin(alpha)]*threeQuartCord(:,j)+wing.start(1)];
-            if j == (wing.SegNum-1)/2+1
-                ym = [ym;wing.L(1)/2];
-            else
-                ym = [ym;ym(end)+wing.L(j-1)/2+wing.L(j)/2];
+            %
+            yTrailR = [yTrailR;wing.Y(1:end-1)+wing.start(2)];
+            yTrailL = [yTrailL;wing.Y(2:end)+wing.start(2)];
+            yLeadR = [yLeadR;wing.Y(1:end-1)+wing.start(2)];
+            yLeadL = [yLeadL;wing.Y(2:end)+wing.start(2)];
+            y1n = [y1n;wing.Y(1:end-1)+wing.start(2)];
+            y2n = [y2n;wing.Y(2:end)+wing.start(2)];
+        case 2
+            for j = 1:wing.SegNum
+                %Calculate the collocation point
+                alpha = 0.5*wing.Theta(j+1)+0.5*wing.Theta(j);
+                collocationCord = [interp1(wing.Z,SegCord(1,:),0.5*wing.Z(j+1)+.125*wing.PhiZ(j+1)+0.5*wing.Z(j)-0.125*wing.PhiZ(j));...
+                    interp1(wing.Z,SegCord(2,:),0.5*wing.Z(j+1)+.125*wing.PhiZ(j+1)+0.5*wing.Z(j)-0.125*wing.PhiZ(j))];
+                if j < (wing.SegNum-1)/2+1
+                    zm = [zm;0.5*wing.Z(j+1)+.125*wing.PhiZ(j+1)+0.5*wing.Z(j)-0.125*wing.PhiZ(j)+wing.start(3)];
+                    xm = [xm;0.5*wing.X(j+1)+.125*wing.PhiX(j+1)+0.5*wing.X(j)-0.125*wing.PhiX(j)+[cos(alpha),-sin(alpha)]*(.75*collocationCord+(lead(:,j)+lead(:,j+1))/2)+wing.start(1)];
+                else
+                    zm = [zm;0.5*wing.Z(j+1)+.125*wing.PhiZ(j+1)+0.5*wing.Z(j)-0.125*wing.PhiZ(j)+wing.start(3)];
+                    xm = [xm;0.5*wing.X(j)+.125*wing.PhiX(j)+0.5*wing.X(j+1)-0.125*wing.PhiX(j+1)+[cos(alpha),-sin(alpha)]*(.75*collocationCord+(lead(:,j)+lead(:,j+1))/2)+wing.start(1)];
+                end
+                ym = [ym;(wing.Y(j)+wing.Y(j+1))/2+[sin(alpha),cos(alpha)]*threeQuartCord(:,j)+wing.start(2)];
+                %Calculate X and Z corrdinated based off twist
+                x1n = [x1n;wing.X(j)+diag([cos(wing.Theta(j)),-sin(wing.Theta(j))]*quartCord(:,j))+wing.start(1)];
+                x2n = [x2n;wing.X(j+1)+diag([cos(wing.Theta(j+1)),-sin(wing.Theta(j+1))]*quartCord(:,j+1))+wing.start(1)];
+                xTrailR = [xTrailR;wing.X(j)+diag([cos(wing.Theta(j)),-sin(wing.Theta(j))]*trail(:,j))+wing.start(1)];
+                xTrailL = [xTrailL;wing.X(j+1)+diag([cos(wing.Theta(j+1)),-sin(wing.Theta(j+1))]*trail(:,j+1))+wing.start(1)];
+                xLeadR = [xLeadR;wing.X(j)+diag([cos(wing.Theta(j)),-sin(wing.Theta(j))]*lead(:,j))+wing.start(1)];
+                xLeadL = [xLeadL;wing.X(j+1)+diag([cos(wing.Theta(j+1)),-sin(wing.Theta(j+1))]*lead(:,j+1))+wing.start(1)];
+                %
+                y1n = [y1n;wing.Y(j)+diag([sin(wing.Theta(j)),cos(wing.Theta(j))]*quartCord(:,j))+wing.start(2)];
+                y2n = [y2n;wing.Y(j)+diag([sin(wing.Theta(j+1)),cos(wing.Theta(j+1))]*quartCord(:,j+1))+wing.start(2)];
+                yTrailR = [yTrailR;wing.Y(j)+diag([sin(wing.Theta(j)),cos(wing.Theta(j))]*trail(:,j))+wing.start(2)];
+                yTrailL = [yTrailL;wing.Y(j)+diag([sin(wing.Theta(j+1)),cos(wing.Theta(j+1))]*trail(:,j+1))+wing.start(2)];
+                yLeadR = [yLeadR;wing.Y(j)+diag([sin(wing.Theta(j)),cos(wing.Theta(j))]*lead(:,j))+wing.start(2)];
+                yLeadL = [yLeadL;wing.Y(j)+diag([sin(wing.Theta(j+1)),cos(wing.Theta(j+1))]*lead(:,j+1))+wing.start(2)];
             end
-        end
-        %Calculate X and Z corrdinated based off twist
-        x1n = [x1n;wing.X(j)+diag([cos(wing.Theta(j)),-sin(wing.Theta(j))]*quartCord(:,j))+wing.start(1)];
-        x2n = [x2n;wing.X(j+1)+diag([cos(wing.Theta(j+1)),-sin(wing.Theta(j+1))]*quartCord(:,j+1))+wing.start(1)];
-        xTrailR = [xTrailR;wing.X(j)+diag([cos(wing.Theta(j)),-sin(wing.Theta(j))]*trail(:,j))+wing.start(1)];
-        xTrailL = [xTrailL;wing.X(j+1)+diag([cos(wing.Theta(j+1)),-sin(wing.Theta(j+1))]*trail(:,j+1))+wing.start(1)];
-        xLeadR = [xLeadR;wing.X(j)+diag([cos(wing.Theta(j)),-sin(wing.Theta(j))]*lead(:,j))+wing.start(1)];
-        xLeadL = [xLeadL;wing.X(j+1)+diag([cos(wing.Theta(j+1)),-sin(wing.Theta(j+1))]*lead(:,j+1))+wing.start(1)];
-        %
-        z1n = [z1n;wing.Z(j)+diag([sin(wing.Theta(j)),cos(wing.Theta(j))]*quartCord(:,j))+wing.start(3)];
-        z2n = [z2n;wing.Z(j)+diag([sin(wing.Theta(j+1)),cos(wing.Theta(j+1))]*quartCord(:,j+1))+wing.start(3)];
-        zTrailR = [zTrailR;wing.Z(j)+diag([sin(wing.Theta(j)),cos(wing.Theta(j))]*trail(:,j))+wing.start(3)];
-        zTrailL = [zTrailL;wing.Z(j)+diag([sin(wing.Theta(j+1)),cos(wing.Theta(j+1))]*trail(:,j+1))+wing.start(3)];
-        zLeadR = [zLeadR;wing.Z(j)+diag([sin(wing.Theta(j)),cos(wing.Theta(j))]*lead(:,j))+wing.start(3)];
-        zLeadL = [zLeadL;wing.Z(j)+diag([sin(wing.Theta(j+1)),cos(wing.Theta(j+1))]*lead(:,j+1))+wing.start(3)];
-
+            %
+            z1n = [z1n;wing.Z(1:end-1)+wing.start(3)];
+            z2n = [z2n;wing.Z(2:end)+wing.start(3)];
+            zTrailR = [zTrailR;wing.Z(1:end-1)+wing.start(3)];
+            zTrailL = [zTrailL;wing.Z(2:end)+wing.start(3)];
+            zLeadR = [zLeadR;wing.Z(1:end-1)+wing.start(3)];
+            zLeadL = [zLeadL;wing.Z(2:end)+wing.start(3)];
     end
 else
+    %Calculate the y coordinates for panels
+    y1nTemp = wing.Y(1:end-1);
+    y2nTemp = wing.Y(2:end);
+    
     for j = 1:wing.SegNum
         %Calculate x position leading vortex edges
         x1nTemp = wing.X(j)+diag([cos(wing.Theta(j)),-sin(wing.Theta(j))]*quartCord(:,j))+wing.start(1);
@@ -462,19 +524,11 @@ else
         if j < (wing.SegNum-1)/2+1
             zm = [zm;0.5*wing.Z(j+1)+.125*wing.PhiZ(j+1)+0.5*wing.Z(j)-0.125*wing.PhiZ(j)+[sin(alpha),cos(alpha)]*threeQuartCord(:,j)+wing.start(3)];
             xm = [xm;0.5*wing.X(j+1)+.125*wing.PhiX(j+1)+0.5*wing.X(j)-0.125*wing.PhiX(j)+[cos(alpha),-sin(alpha)]*threeQuartCord(:,j)+wing.start(1)];
-            if j == 1
-                ym = [ym;-sum(wing.L)/2+wing.L(1)/2];
-            else
-                ym = [ym;ym(end)+wing.L(j-1)/2+wing.L(j)/2];
-            end
+            ym = [ym;(wing.Y(j)+wing.Y(j+1))/2];
         else
             zm = [zm;0.5*wing.Z(j)+.125*wing.PhiZ(j)+0.5*wing.Z(j+1)-0.125*wing.PhiZ(j+1)+[sin(alpha),cos(alpha)]*threeQuartCord(:,j)+wing.start(3)];
             xm = [xm;0.5*wing.X(j)+.125*wing.PhiX(j)+0.5*wing.X(j+1)-0.125*wing.PhiX(j+1)+[cos(alpha),-sin(alpha)]*threeQuartCord(:,j)+wing.start(1)];
-            if j == (wing.SegNum-1)/2+1
-                ym = [ym;wing.L(1)/2];
-            else
-                ym = [ym;ym(end)+wing.L(j-1)/2+wing.L(j)/2];
-            end
+            ym = [ym;(wing.Y(j-1)+wing.Y(j))/2];
         end
         
         %Calculate X and Z corrdinated based off twist
@@ -554,7 +608,7 @@ else
             zm(end) = tempM(3);
         end
     end
+    y1n = [y1n;y1nTemp];
+    y2n = [y2n;y2nTemp];
 end
-y1n = [y1n;y1nTemp];
-y2n = [y2n;y2nTemp];
 end

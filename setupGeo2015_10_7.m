@@ -63,7 +63,7 @@ geo.ny = 0;
 for i = 1:nwing
     geo.nx = Wings(i).wing.cordNum+geo.nx;
     geo.ny = Wings(i).wing.SegNum+geo.ny;
-    Wings(i).wing.Controls
+    
     if ~isempty(Wings(i).wing.Controls)
         yTemp = [-flipud([cumsum(Wings(i).wing.L(length(Wings(i).wing.L)/2:end-1))]);[0;cumsum(Wings(i).wing.L(length(Wings(i).wing.L)/2:end-1))]+Wings(i).wing.start(2)];
         for j = 1:length(geo.Wings(i).wing.Controls)
