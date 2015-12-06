@@ -449,8 +449,7 @@ else
         %Calculate x position leading vortex edges
         x1nTemp = wing.X(j)+diag([cos(wing.Theta(j)),-sin(wing.Theta(j))]*quartCord(:,j))+wing.start(1);
         x2nTemp = wing.X(j+1)+diag([cos(wing.Theta(j+1)),-sin(wing.Theta(j+1))]*quartCord(:,j+1))+wing.start(1);
-        wing.Controls(1).surface
-        wing.Controls(2).surface
+
         %Determine if current pannel is within a control surface
         isControl = zeros(1,length(wing.Controls));
         for k = 1:length(wing.Controls)

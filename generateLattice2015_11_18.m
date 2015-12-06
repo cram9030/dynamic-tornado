@@ -507,7 +507,7 @@ else
     %Calculate the y coordinates for panels
     y1nTemp = wing.Y(1:end-1);
     y2nTemp = wing.Y(2:end);
-    
+
     for j = 1:wing.SegNum
         %Calculate x position leading vortex edges
         x1nTemp = wing.X(j)+diag([cos(wing.Theta(j)),-sin(wing.Theta(j))]*quartCord(:,j))+wing.start(1);

@@ -40,7 +40,7 @@ for n = 1:length(airSpeedRange)
                     masterLattice(j,i,g,m,n) = generateLattice2015_10_6(masterGeo(j,i,g,m,n),S_ref,C_ref,B_ref,mac_pos,masterState(j,i,g,m,n));
                     
                     geo = masterGeo(j,i,g,m,n);
-                    for k = 1:length(Wings(1).wing.Flex)
+                    for k = 1:length(masterGeo(j,i,g,m,n).Wings(1).wing.Flex)
                         twist = [twistRange(j,1)*pi/180,twistRange(j,2)*pi/180];
                         twist(k) = twist(k)+1j*step;
                         [Thetai,~,~,~,~,~] = generateStates(K,Wings,twist);
@@ -50,7 +50,7 @@ for n = 1:length(airSpeedRange)
                     geo.Wings(1).wing.Theta = Theta;
                     for k = 1:length(Wings(1).wing.Controls)
                         geo.Wings(1).wing.Controls(k).rotation = aileronRange(g,k)+1j*step;
-                        latticei(k+length(Wings(1).wing.Flex)) = generateLattice2015_10_6(geo,S_ref,C_ref,B_ref,mac_pos,masterState(j,i,g,m,n));
+                        latticei(k+length(masterGeo(j,i,g,m,n).Wings(1).wing.Flex)) = generateLattice2015_10_6(geo,S_ref,C_ref,B_ref,mac_pos,masterState(j,i,g,m,n));
                     end
 
                     results = dynamicSolver(masterState(j,i,g,m,n),masterGeo(j,i,g,m,n),masterLattice(j,i,g,m,n),latticei,step);
