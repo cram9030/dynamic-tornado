@@ -168,13 +168,16 @@ a=e/2;
 b=a+1;
       
 for t=1:step	%Looping through panels
+    ra = [];
+    rb = [];
+    rc = [];
    alpha=C_Slope(t);
    
    	for s=1:3						%Looping Through Dimensions.
       	ra(s)=vortex(t,a,s);
       	rb(s)=vortex(t,b,s);
       	rc(s)=colloc(t,s);
-      end
+    end
         r0=rb-ra;
         r0(1)=0;                    %fix to get normals to not point the right way
       	r1=rc-ra;

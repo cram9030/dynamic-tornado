@@ -46,7 +46,6 @@ results = [];
 
 [a vor_length void]=size(lattice.VORTEX);%extracting number of sections in 
 										   %"horseshoes"
-
 [w2 void]=fastdw(lattice);
 
 results.dwcond=cond(w2);
@@ -78,7 +77,7 @@ end
 
 
 
-
+time = cputime;
 b1=vor_length/2;
 
 p1(:,:)=lattice.VORTEX(:,b1,:);		%Calculating panel vortex midpoint	
@@ -170,6 +169,8 @@ for i = 1:length(latticei)
     [w2 void]=fastdw(latticei(i));
     gamma=w2\rhs';
     
+    p1 = [];
+    p2 = [];
     p1(:,:)=latticei(i).VORTEX(:,b1,:);		%Calculating panel vortex midpoint	
     p2(:,:)=latticei(i).VORTEX(:,b1+1,:);	%to use as a force locus
     latticei(i).COLLOC(:,:)=(p1+p2)./2;	    % LOCAL control point, vortex midpoint.
@@ -182,11 +183,13 @@ for i = 1:length(latticei)
     DWX=DW(:,:,1);
     DWY=DW(:,:,2);
     DWZ=DW(:,:,3);
-
+    
+    IW = [];
     IW(:,1)=DWX*gamma;
     IW(:,2)=DWY*gamma;
     IW(:,3)=DWZ*gamma;
-
+    
+    Gi = [];
     Gi(:,1)=gamma.*lehat(:,1);	%Aligning vorticity along panel vortex
     Gi(:,2)=gamma.*lehat(:,2);
     Gi(:,3)=gamma.*lehat(:,3);
@@ -199,13 +202,14 @@ for i = 1:length(latticei)
     Fprim=state.rho*cross(Wind,Gi);			    %Force per unit length
     F=Fprim.*(Lle*ones(1,3));
     
-    results.dInput(i).dF_control=imag(F)/h;
-    results.dInput(i).dFORCE_control=imag(sum(F,1))/h;						%Total force
+    dInput(i).dF_control=imag(F)/h;
+    dInput(i).dFORCE_control=imag(sum(F,1))/h;						%Total force
     M=cross(c3,F);			                 %Moments per panel
-    results.dInput(i).dM_control=imag(M)/h;
-    results.dInput(i).dMOMENTS_control=imag(sum(M,1))/h;					%Summing up moments	
-    results.dInput(i).dgamma_control=imag(gamma)/h;
+    dInput(i).dM_control=imag(M)/h;
+    dInput(i).dMOMENTS_control=imag(sum(M,1))/h;					%Summing up moments	
+    dInput(i).dgamma_control=imag(gamma)/h;
 end
+results.dInput = dInput;
 
 end
 
@@ -236,6 +240,8 @@ mN(:,:,3)=lattice.N(:,3)*lemma;
 
 for j=1:(vsize-1)
     
+    lr1 = [];
+    lr2 = [];
     lr1(:,:,1)=(lattice.VORTEX(:,j,1)*lemma)';
     lr1(:,:,2)=(lattice.VORTEX(:,j,2)*lemma)';
     lr1(:,:,3)=(lattice.VORTEX(:,j,3)*lemma)';

@@ -4,7 +4,7 @@ function [masterState,masterLattice,masterGeo,masterResults,ref,forceTwist] = ae
 %Might only work with the same panel numbers on all wings will need to
 %check this later
 
-initTime = cputime;
+tic
 
 K = K(6:end,6:end);
 M = M(6:end,6:end);
@@ -20,48 +20,62 @@ end
 
 [numAileron,~] = size(aileronRange);
 [numTwist,~] = size(twistRange);
+numAlpha = length(alphaRange);
+numBeta = length(betaRange);
+numAirSpeed = length(airSpeedRange);
 
-for n = 1:length(airSpeedRange)
-    for m = 1:length(betaRange)
+for n = 1:numAirSpeed
+    for m = 1:numBeta
         for g = 1:numAileron
             for j = 1:numTwist
-                for i = 1:length(alphaRange)
+                parfor i = 1:numAlpha
+                    disp(['n: ',num2str(n),' m: ',num2str(m),' g: ',num2str(g),' j: ',num2str(j),' i: ',num2str(i)])
                     
                     [Theta,~,~,~,~,force] = generateStates(K,Wings,[twistRange(j,1)*pi/180,twistRange(j,2)*pi/180]);
                     forceTwist(j,i) = force;
-                    
+                    time = cputime;
                     masterState(j,i,g,m,n) = setupState2015_8_10(alphaRange(i)*pi/180*ones(totalPanels,1),alphaRange(i)*pi/180,betaRange(m),airSpeedRange(n)*ones(totalPanels,1),airSpeedRange(n),airDensity);
+                    disp(['State Elapse Time: ',num2str(cputime-time)]);
+                    time = cputime;
                     masterGeo(j,i,g,m,n) = setupGeo2015_8_10([ActLoc(1),0,ActLoc(2)],[CG(1),0,CG(2)],Wings);
                     for k = 1:length(Wings(1).wing.Controls)
                         masterGeo(j,i,g,m,n).Wings(1).wing.Controls(k).rotation = aileronRange(g,k);
                     end
                     masterGeo(j,i,g,m,n).Wings(1).wing.Theta = Theta;
                     masterGeo(j,i,g,m,n).Wings(1).wing.Flex = [twistRange(j,1)*pi/180,twistRange(j,2)*pi/180];
-                    masterLattice(j,i,g,m,n) = generateLattice2015_10_6(masterGeo(j,i,g,m,n),S_ref,C_ref,B_ref,mac_pos,masterState(j,i,g,m,n));
+                    disp(['Geo Elapse Time: ',num2str(cputime-time)]);
+                    time = cputime;
+                    masterLattice(j,i,g,m,n) = generateLattice2015_11_18(masterGeo(j,i,g,m,n),S_ref,C_ref,B_ref,mac_pos,masterState(j,i,g,m,n));
                     
+                    latticei = repmat(masterLattice(j,i,g,m,n),length(masterGeo(j,i,g,m,n).Wings(1).wing.Flex)+length(Wings(1).wing.Controls),1);
                     geo = masterGeo(j,i,g,m,n);
                     for k = 1:length(masterGeo(j,i,g,m,n).Wings(1).wing.Flex)
                         twist = [twistRange(j,1)*pi/180,twistRange(j,2)*pi/180];
                         twist(k) = twist(k)+1j*step;
                         [Thetai,~,~,~,~,~] = generateStates(K,Wings,twist);
                         geo.Wings(1).wing.Theta = Thetai;
-                        latticei(k) = generateLattice2015_10_6(geo,S_ref,C_ref,B_ref,mac_pos,masterState(j,i,g,m,n));
+                        latticei(k) = generateLattice2015_11_18(geo,S_ref,C_ref,B_ref,mac_pos,masterState(j,i,g,m,n));
                     end
                     geo.Wings(1).wing.Theta = Theta;
                     for k = 1:length(Wings(1).wing.Controls)
                         geo.Wings(1).wing.Controls(k).rotation = aileronRange(g,k)+1j*step;
                         latticei(k+length(masterGeo(j,i,g,m,n).Wings(1).wing.Flex)) = generateLattice2015_10_6(geo,S_ref,C_ref,B_ref,mac_pos,masterState(j,i,g,m,n));
                     end
+                    disp(['Lattice Elapse Time: ',num2str(cputime-time)]);
+                    time = cputime;
 
                     results = dynamicSolver(masterState(j,i,g,m,n),masterGeo(j,i,g,m,n),masterLattice(j,i,g,m,n),latticei,step);
+                    disp(['Results Elapse Time: ',num2str(cputime-time)]);
+                    time = cputime;
                     masterResults(j,i,g,m,n) = coeff_create(results,masterLattice(j,i,g,m,n),masterState(j,i,g,m,n),ref,masterGeo(j,i,g,m,n));
+                    disp(['Coef Elapse Time: ',num2str(cputime-time)]);
                 end
                 disp(['Precent Complete: ',num2str(100*(length(betaRange)*length(aileronRange)*length(twistRange)*(n-1)+length(aileronRange)*length(twistRange)*(m-1)+length(twistRange)*(g-1)+j)/(length(twistRange)*length(aileronRange)*length(betaRange)*length(airSpeedRange)))]);
-                disp(['Elapse Time: ' num2str(cputime-initTime)]);
             end
         end
     end
 end
+disp(['Elapse Time: ' num2str(toc)]);
 end
 
 function [Theta,Phiz,Phix,X,Z,force] = generateStates(K,Wings,twist)
