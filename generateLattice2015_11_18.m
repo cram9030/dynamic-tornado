@@ -266,7 +266,7 @@ if isempty(infdist)
 	infdist=6*ref.b_ref;
 end
 
-[a b c]=size(lattice.VORTEX);
+[a,b,c]=size(lattice.VORTEX);
 V2=lattice.VORTEX;
 c=[1 b];
 

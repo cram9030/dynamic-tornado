@@ -1,4 +1,4 @@
-function [results]=dynamicSolver(state,geo,lattice,latticei,h)
+function [results]=dynamicSolver(state,geo,lattice,latticei,h,derivative)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Copyright (C) 1999, 2007 Tomas Melin
 %
@@ -141,75 +141,77 @@ G(:,:,3)=gammai.*(lehat(:,3)*ones(1,3));
 V=state.AS;
 Vi=state.AS+1j*h;
 
-WindVi =([Vi.*cos(state.alpha).*cos(state.betha) -Vi.*cos(state.alpha).*sin(state.betha) Vi.*sin(state.alpha)])-reshape(IWi(:,1,:),[length(IWi(:,1,:)),3]);
-WindAlphai = ([V.*cos(state.alpha+1j*h).*cos(state.betha) -V.*cos(state.alpha+1j*h).*sin(state.betha) V.*sin(state.alpha+1j*h)])-reshape(IWi(:,2,:),[length(IWi(:,2,:)),3]);
-WindBetai = ([V.*cos(state.alpha).*cos(state.betha+1j*h) -V.*cos(state.alpha).*sin(state.betha+1j*h) V.*sin(state.alpha)])-reshape(IWi(:,3,:),[length(IWi(:,3,:)),3]);
+if derivative
+    WindVi =([Vi.*cos(state.alpha).*cos(state.betha) -Vi.*cos(state.alpha).*sin(state.betha) Vi.*sin(state.alpha)])-reshape(IWi(:,1,:),[length(IWi(:,1,:)),3]);
+    WindAlphai = ([V.*cos(state.alpha+1j*h).*cos(state.betha) -V.*cos(state.alpha+1j*h).*sin(state.betha) V.*sin(state.alpha+1j*h)])-reshape(IWi(:,2,:),[length(IWi(:,2,:)),3]);
+    WindBetai = ([V.*cos(state.alpha).*cos(state.betha+1j*h) -V.*cos(state.alpha).*sin(state.betha+1j*h) V.*sin(state.alpha)])-reshape(IWi(:,3,:),[length(IWi(:,3,:)),3]);
 
-results.dF_V = imag(state.rho*cross(WindVi,reshape(G(:,1,:),[length(G(:,1,:)),3])).*(Lle*ones(1,3)))/h;
-results.dFORCE_V = imag(sum(state.rho*cross(WindVi,reshape(G(:,1,:),[length(G(:,1,:)),3])).*(Lle*ones(1,3))))/h;
-results.dM_V = imag(cross(c3,state.rho*cross(WindVi,reshape(G(:,1,:),[length(G(:,1,:)),3])).*(Lle*ones(1,3))))/h;
-results.dMOMENTS_V = imag(sum(cross(c3,state.rho*cross(WindVi,reshape(G(:,1,:),[length(G(:,1,:)),3])).*(Lle*ones(1,3)))))/h;
+    results.dF_V = imag(state.rho*cross(WindVi,reshape(G(:,1,:),[length(G(:,1,:)),3])).*(Lle*ones(1,3)))/h;
+    results.dFORCE_V = imag(sum(state.rho*cross(WindVi,reshape(G(:,1,:),[length(G(:,1,:)),3])).*(Lle*ones(1,3))))/h;
+    results.dM_V = imag(cross(c3,state.rho*cross(WindVi,reshape(G(:,1,:),[length(G(:,1,:)),3])).*(Lle*ones(1,3))))/h;
+    results.dMOMENTS_V = imag(sum(cross(c3,state.rho*cross(WindVi,reshape(G(:,1,:),[length(G(:,1,:)),3])).*(Lle*ones(1,3)))))/h;
 
-results.dF_alpha = imag(state.rho*cross(WindAlphai,reshape(G(:,2,:),[length(G(:,2,:)),3])).*(Lle*ones(1,3)))/h;
-results.dFORCE_alpha = imag(sum(state.rho*cross(WindAlphai,reshape(G(:,2,:),[length(G(:,2,:)),3])).*(Lle*ones(1,3))))/h;
-results.dM_alpha = imag(cross(c3,state.rho*cross(WindAlphai,reshape(G(:,2,:),[length(G(:,2,:)),3])).*(Lle*ones(1,3))))/h;
-results.dMOMENTS_alpha = imag(sum(cross(c3,state.rho*cross(WindAlphai,reshape(G(:,2,:),[length(G(:,2,:)),3])).*(Lle*ones(1,3)))))/h;
+    results.dF_alpha = imag(state.rho*cross(WindAlphai,reshape(G(:,2,:),[length(G(:,2,:)),3])).*(Lle*ones(1,3)))/h;
+    results.dFORCE_alpha = imag(sum(state.rho*cross(WindAlphai,reshape(G(:,2,:),[length(G(:,2,:)),3])).*(Lle*ones(1,3))))/h;
+    results.dM_alpha = imag(cross(c3,state.rho*cross(WindAlphai,reshape(G(:,2,:),[length(G(:,2,:)),3])).*(Lle*ones(1,3))))/h;
+    results.dMOMENTS_alpha = imag(sum(cross(c3,state.rho*cross(WindAlphai,reshape(G(:,2,:),[length(G(:,2,:)),3])).*(Lle*ones(1,3)))))/h;
 
-results.NP = pinv([0,results.dFORCE_alpha(3),-results.dFORCE_alpha(2);...
-    -results.dFORCE_alpha(3),0,results.dFORCE_alpha(1);...
-    results.dFORCE_alpha(2),results.dFORCE_alpha(1),0])*sum(cross(lattice.COLLOC,results.dF_alpha))';
+    results.NP = pinv([0,results.dFORCE_alpha(3),-results.dFORCE_alpha(2);...
+        -results.dFORCE_alpha(3),0,results.dFORCE_alpha(1);...
+        results.dFORCE_alpha(2),results.dFORCE_alpha(1),0])*sum(cross(lattice.COLLOC,results.dF_alpha))';
 
-results.dF_beta = imag(state.rho*cross(WindBetai,reshape(G(:,3,:),[length(G(:,3,:)),3])).*(Lle*ones(1,3)))/h;
-results.dFORCE_beta = imag(sum(state.rho*cross(WindBetai,reshape(G(:,3,:),[length(G(:,3,:)),3])).*(Lle*ones(1,3))))/h;
-results.dM_beta = imag(cross(c3,state.rho*cross(WindBetai,reshape(G(:,3,:),[length(G(:,3,:)),3])).*(Lle*ones(1,3))))/h;
-results.dMOMENTS_beta = imag(sum(cross(c3,state.rho*cross(WindBetai,reshape(G(:,3,:),[length(G(:,3,:)),3])).*(Lle*ones(1,3)))))/h;
+    results.dF_beta = imag(state.rho*cross(WindBetai,reshape(G(:,3,:),[length(G(:,3,:)),3])).*(Lle*ones(1,3)))/h;
+    results.dFORCE_beta = imag(sum(state.rho*cross(WindBetai,reshape(G(:,3,:),[length(G(:,3,:)),3])).*(Lle*ones(1,3))))/h;
+    results.dM_beta = imag(cross(c3,state.rho*cross(WindBetai,reshape(G(:,3,:),[length(G(:,3,:)),3])).*(Lle*ones(1,3))))/h;
+    results.dMOMENTS_beta = imag(sum(cross(c3,state.rho*cross(WindBetai,reshape(G(:,3,:),[length(G(:,3,:)),3])).*(Lle*ones(1,3)))))/h;
 
-%Calculating flexible derivatives via the complex step method
-for i = 1:length(latticei)
-    [w2 void]=fastdw(latticei(i));
-    gamma=w2\rhs';
-    
-    p1 = [];
-    p2 = [];
-    p1(:,:)=latticei(i).VORTEX(:,b1,:);		%Calculating panel vortex midpoint	
-    p2(:,:)=latticei(i).VORTEX(:,b1+1,:);	%to use as a force locus
-    latticei(i).COLLOC(:,:)=(p1+p2)./2;	    % LOCAL control point, vortex midpoint.
-    c3=latticei(i).COLLOC-ones(size(latticei(i).COLLOC,1),1)*geo.CG;
+    %Calculating flexible derivatives via the complex step method
+    for i = 1:length(latticei)
+        [w2 void]=fastdw(latticei(i));
+        gamma=w2\rhs';
 
-    [w3 DW]=fastdw(latticei(i));	                    %Calculating downwash on vorticies
+        p1 = [];
+        p2 = [];
+        p1(:,:)=latticei(i).VORTEX(:,b1,:);		%Calculating panel vortex midpoint	
+        p2(:,:)=latticei(i).VORTEX(:,b1+1,:);	%to use as a force locus
+        latticei(i).COLLOC(:,:)=(p1+p2)./2;	    % LOCAL control point, vortex midpoint.
+        c3=latticei(i).COLLOC-ones(size(latticei(i).COLLOC,1),1)*geo.CG;
 
-    w4=sum(DW,2);					                %superpositioning aerodynamic influence
+        [w3 DW]=fastdw(latticei(i));	                    %Calculating downwash on vorticies
 
-    DWX=DW(:,:,1);
-    DWY=DW(:,:,2);
-    DWZ=DW(:,:,3);
-    
-    IW = [];
-    IW(:,1)=DWX*gamma;
-    IW(:,2)=DWY*gamma;
-    IW(:,3)=DWZ*gamma;
-    
-    Gi = [];
-    Gi(:,1)=gamma.*lehat(:,1);	%Aligning vorticity along panel vortex
-    Gi(:,2)=gamma.*lehat(:,2);
-    Gi(:,3)=gamma.*lehat(:,3);
-    
-    V=state.AS;
-    Wind=([V.*cos(state.alpha).*cos(state.betha) -V.*cos(state.alpha).*sin(state.betha) V.*sin(state.alpha)])-reshape(IW,[length(IW),3]);
-    
-    Wind=Wind;								%Adding rotations
+        w4=sum(DW,2);					                %superpositioning aerodynamic influence
 
-    Fprim=state.rho*cross(Wind,Gi);			    %Force per unit length
-    F=Fprim.*(Lle*ones(1,3));
-    
-    dInput(i).dF_control=imag(F)/h;
-    dInput(i).dFORCE_control=imag(sum(F,1))/h;						%Total force
-    M=cross(c3,F);			                 %Moments per panel
-    dInput(i).dM_control=imag(M)/h;
-    dInput(i).dMOMENTS_control=imag(sum(M,1))/h;					%Summing up moments	
-    dInput(i).dgamma_control=imag(gamma)/h;
+        DWX=DW(:,:,1);
+        DWY=DW(:,:,2);
+        DWZ=DW(:,:,3);
+
+        IW = [];
+        IW(:,1)=DWX*gamma;
+        IW(:,2)=DWY*gamma;
+        IW(:,3)=DWZ*gamma;
+
+        Gi = [];
+        Gi(:,1)=gamma.*lehat(:,1);	%Aligning vorticity along panel vortex
+        Gi(:,2)=gamma.*lehat(:,2);
+        Gi(:,3)=gamma.*lehat(:,3);
+
+        V=state.AS;
+        Wind=([V.*cos(state.alpha).*cos(state.betha) -V.*cos(state.alpha).*sin(state.betha) V.*sin(state.alpha)])-reshape(IW,[length(IW),3]);
+
+        Wind=Wind;								%Adding rotations
+
+        Fprim=state.rho*cross(Wind,Gi);			    %Force per unit length
+        F=Fprim.*(Lle*ones(1,3));
+
+        dInput(i).dF_control=imag(F)/h;
+        dInput(i).dFORCE_control=imag(sum(F,1))/h;						%Total force
+        M=cross(c3,F);			                 %Moments per panel
+        dInput(i).dM_control=imag(M)/h;
+        dInput(i).dMOMENTS_control=imag(sum(M,1))/h;					%Summing up moments	
+        dInput(i).dgamma_control=imag(gamma)/h;
+    end
+    results.dInput = dInput;
 end
-results.dInput = dInput;
 
 end
 

@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [masterState,masterLattice,masterGeo,masterResults,ref,CL,CD,LD,forceTwist] = dynamicTwist2016_7_23(M,C,K,SegNum,halfWingLength,cord,centroid,ActLoc,cordNum,bw,noseH,alpha_root,numSpanB,beta,q,airDensity,twist,Cdp)
+function [F,G] = dynamicTwist2016_2_6(x)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% dynamicTwist6_23_2015: Function for Dynamic TORNADO						
+% dynamicTwist2016_2_6: Function for Dynamic TORNADO						
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This function simulates the dynamic tip twist of the wing for a
 % proscribed tip profile
@@ -37,7 +37,24 @@ function [masterState,masterLattice,masterGeo,masterResults,ref,CL,CD,LD,forceTw
 %           LD - array lift/drag ratio at the times from twist input
 %           forceTwist - array of required torque for specified tip twist
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-time = cputime;
+
+twist(:,1) = x(1:length(x)/2);
+twist(:,2) = x(1+length(x)/2:end);
+
+%global tunnelWing K M C Cdp S_ref C_ref B_ref alpha_0 centroid ActLoc rhom_inf airSpeed
+tunnelWing = [];
+airSpeed = [];
+cordNum = [];
+ActLoc = [];
+C_ref = [];
+rhom_inf = [];
+centroid = [];
+S_ref = [];
+B_ref = [];
+
+load('OptimizationLoadFile2016_2_8.mat')
+
+%global tunnelWing K M C Cdp S_ref C_ref B_ref alpha_root centroid ActLoc rhom_inf airSpeed
 
 %Intialize clamped boundary condition for structure arrays
 K = K(6:end,6:end);
@@ -45,41 +62,44 @@ M = M(6:end,6:end);
 C = C(6:end,6:end);
 
 %Initalizing output variables
-forceTwist = zeros(length(twist),1);
 CL = zeros(length(twist),1);
 CD = zeros(length(twist),1);
-LD = zeros(length(twist),1);
 
 %Intialize length, airspeed, and refrence
-L = 2*halfWingLength/SegNum*ones(SegNum,1);
-[ref]=setRef6_15(L,cord,zeros(1,3));
+ref=setRef2015_8_17(S_ref,C_ref,B_ref,[0,0,0]);
+totalPanels = 0;
+for h = 1:length(tunnelWing)
+    totalPanels = tunnelWing(h).wing.SegNum*tunnelWing(h).wing.cordNum+totalPanels;
+end
+
 airfoilRot = zeros(2,2,3);
-for i = 1:cordNum
-    phi = -atan(ActLoc(2)/(ActLoc(1)-((i-1)*cord/cordNum)+.75*cord/cordNum));
+for i = 1:tunnelWing(1).wing.cordNum
+    phi = -atan(ActLoc(2)/(ActLoc(1)-((i-1)*C_ref/tunnelWing(1).wing.cordNum)+.75*C_ref/tunnelWing(1).wing.cordNum));
     airfoilRot(:,:,i) = [cos(phi) -sin(phi);sin(phi) cos(phi)];
 end
+
 
 %Convert alpha_root from degrees to radian
 alpha_root = alpha_root*pi/180;
 
-for count = 1:length(twist(:,1)')
+parfor count = 1:length(twist(:,1))
+    
+    tempWing = tunnelWing;
     %Initialize alphas, Dihedrial angle, and forces to zero
-    DiHiAng = zeros(SegNum,1);
-    alpha = zeros(SegNum,1);
-    vLoc = zeros(2,SegNum+numSpanB);
-    alpha_aero = zeros(SegNum+numSpanB,1);
-    artU_infMag = zeros(SegNum+numSpanB,1);
+    alpha = zeros(tempWing(h).wing.SegNum,1);
+    vLoc = zeros(2,tempWing(h).wing.SegNum);
+    alpha_aero = zeros(tempWing(h).wing.SegNum,1);
+    artU_infMag = zeros(tempWing(h).wing.SegNum,1);
     
     %Intialize temporary variables
     tempK = zeros(size(K));
     tempTwist = zeros(length(tempK),1);
     tempRotVel = zeros(length(tempK),1);
-    States = zeros(5*(SegNum+1),1);
-
+    States = zeros(5*(tempWing(h).wing.SegNum+1),1);
     
     %Determine twist of wing based off of perscribed tip twist
-    tipTwist = twist(count,2);
-    tipRotVel = twist(count,3);
+    tipTwist = twist(count,1);
+    tipRotVel = twist(count,2);
     
     tempK = K;
     tempK(end,end) = -1;
@@ -87,7 +107,7 @@ for count = 1:length(twist(:,1)')
     tempTwist(end) = -K(end,end)*tipTwist;
     tempTwist(end-5) = -K(end-5,end)*tipTwist;
     staticTwist = tempK\tempTwist;
-    forceTwist(count) = staticTwist(end);
+    forceTwist = staticTwist(end);
     staticTwist(end) = tipTwist;
     
     %Determine twist rate from tip twist rate
@@ -100,47 +120,59 @@ for count = 1:length(twist(:,1)')
     staticVel(end) = tipRotVel;
     
     %Convert to passable twist states
-    for k = 5:5:5/2*SegNum
+    for k = 5:5:5/2*tempWing(h).wing.SegNum
         States(k) = staticTwist(length(staticTwist)-k+5);
     end
     States(length(staticTwist)+6:end) = staticTwist;
-    Theta = States(5:5:5*(SegNum+1));
-    Phiz = States(2:5:5*(SegNum+1));
-    Phix = States(4:5:5*(SegNum+1));
-    X = States(3:5:5*(SegNum+1));
-    Z = States(1:5:5*(SegNum+1));
+    Theta = States(5:5:5*(tempWing(h).wing.SegNum+1));
+    Phiz = States(2:5:5*(tempWing(h).wing.SegNum+1));
+    Phix = States(4:5:5*(tempWing(h).wing.SegNum+1));
+    X = States(3:5:5*(tempWing(h).wing.SegNum+1));
+    Z = States(1:5:5*(tempWing(h).wing.SegNum+1));
     
     %Calculate local anlge of attack for segments
-    for j = 1:SegNum
+    for j = 1:tempWing(h).wing.SegNum
         alpha(j) = 0.5*Theta(j+1)+0.5*Theta(j);
     end
-    %potentiall uncomment this later if I determine that the twist does
-    %need to be coupled with the angle of attack
-    %alpha = alpha_root*ones(cordNum*SegNum,1)-alpha;
     
     %Calculate artificial airspeed and aeroelastic angle of attack
-    airSpeed = 0.3048*sqrt(2*q(count)/airDensity);
-    tempU_inf = [airSpeed*ones(1,cordNum*(SegNum+numSpanB));zeros(1,cordNum*(SegNum+numSpanB))];
-    tempArtU_inf = zeros(2,SegNum*cordNum);
+    tempU_inf = [airSpeed*ones(1,tempWing(h).wing.cordNum*(tempWing(h).wing.SegNum));zeros(1,tempWing(h).wing.cordNum*(tempWing(h).wing.SegNum))];
+    tempArtU_inf = zeros(2,tempWing(h).wing.SegNum*tempWing(h).wing.cordNum);
     for i = 0:cordNum-1
-        tempArtU_inf(:,SegNum*i+1:SegNum*(i+1)) = airfoilRot(:,:,i+1)*[zeros(1,SegNum);norm([ActLoc(1);ActLoc(2)-(i*cord/cordNum)+.75*cord/cordNum],2)*[flipud(staticVel(5:5:end));staticVel(5:5:end)]'];
+        tempArtU_inf(:,tempWing(h).wing.SegNum*i+1:tempWing(h).wing.SegNum*(i+1)) = airfoilRot(:,:,i+1)*[zeros(1,tempWing(h).wing.SegNum);norm([ActLoc(1);ActLoc(2)-(i*C_ref/cordNum)+.75*C_ref/cordNum],2)*[flipud(staticVel(5:5:end));staticVel(5:5:end)]'];
     end
-    artU_inf = [tempArtU_inf,zeros(2,numSpanB*cordNum)];
-    alpha = [alpha_root*ones(cordNum*SegNum,1);alpha_root*ones(numSpanB*cordNum,1)];
+    artU_inf = tempArtU_inf;
+    alpha = alpha_root*ones(tempWing(h).wing.cordNum*tempWing(h).wing.SegNum,1);
     for i = 1:length(artU_inf)
         vLoc(:,i) = [cos(alpha(i)) -sin(alpha(i));sin(alpha(i)) cos(alpha(i))]*tempU_inf(:,i)+artU_inf(:,i);
         alpha_aero(i) = atan(vLoc(2,i)/vLoc(1,i));
         artU_infMag(i) = norm(vLoc(:,i),2);
     end
     
-    masterState(count) = setupState6_24_2015(alpha_aero,alpha_root,beta,artU_infMag,airSpeed,airDensity);
-    masterGeo(count) = setupGeo6_15_2015([ActLoc(1),0,ActLoc(2)],[centroid(1),0,centroid(2)],sum(L),cordNum,SegNum);
-    masterLattice(count) = generateLattice6_24_2015(SegNum,Z,Phiz,X,Phix,Theta,cord,masterGeo(count),cordNum,L,bw,cord,noseH,0,numSpanB,masterState(count));
-    results = dynamicSolver6_23_2015(masterState(count),masterGeo(count),masterLattice(count));
-    masterResults(count) = coeff_create6_24_2015(results,masterLattice(count),masterState(count),ref,masterGeo(count));
-    CL(count) = masterResults(count).CL;
-    CD(count) = masterResults(count).CD+interp1(Cdp(:,1),Cdp(:,2),tipTwist);
-    LD(count) = CL(count)/CD(count);
+    tempWing(1).wing.Theta = Theta;
+    tempWing(1).wing.Phiz = Phiz;
+    tempWing(1).wing.Phix = Phix;
+    tempWing(1).wing.X = X;
+    tempWing(1).wing.Z = Z;
+    tempWing(1).wing.Flex = [twist(count,1),twist(count,1)];
+    
+    state = setupState2015_8_10(alpha_aero,alpha_root,0,artU_infMag,airSpeed,rhom_inf);
+    geo = setupGeo2015_8_10([ActLoc(1),0,ActLoc(2)],[centroid(1),0,centroid(2)],tempWing);
+    lattice = generateLattice2015_11_18(geo,S_ref,C_ref,B_ref,[centroid(1),0,centroid(2)],state);
+    latticei = repmat(lattice,1);
+    results = dynamicSolver(state,geo,lattice,latticei,1e-20,0);
+    results = coeff_create(results,lattice,state,ref,geo,0);
+    CL(count) = results.CL;
+    CD(count) = results.CD+interp1(Cdp(:,1),Cdp(:,2),tipTwist);
     %disp(['Precent Complete: ',num2str(count/length(twist)*100)])
 end
-disp(['Time elapsed: ',num2str(cputime-time)])
+
+F = [mean(CD*.5*rhom_inf*U_inf^2*S_ref);
+    mean(CL)*.5*rhom_inf*U_inf^2*S_ref;
+    max(abs(twist(:,2)))/dt;
+    CL*.5*rhom_inf*U_inf^2*S_ref;
+    twist(:,1)-cumtrapz(0:dt:dt*length(twist)-dt,twist(:,2))
+    ];
+
+% Define the derivatives.
+G=[];
