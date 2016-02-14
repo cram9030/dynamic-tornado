@@ -168,13 +168,12 @@ parfor count = 1:length(twist(:,1))
     %disp(['Precent Complete: ',num2str(count/length(twist)*100)])
 end
 
-F = [1000*mean(CD*.5*rhom_inf*U_inf^2*S_ref);
+F = [mean(CD*.5*rhom_inf*U_inf^2*S_ref);
     mean(CL)*.5*rhom_inf*U_inf^2*S_ref;
     max(abs(twist(:,2)))/dt;
-    x(1)-x(end)
     CL*.5*rhom_inf*U_inf^2*S_ref;
+    twist(:,1)-cumtrapz(0:dt:dt*length(twist)-dt,twist(:,2))
     ];
-F(1)/1000
 
 % Define the derivatives.
 G=[];
