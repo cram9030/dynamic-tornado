@@ -5,11 +5,15 @@ usrfun = 'dynamicTwist2016_2_6';
 % setup the snopt input parameters
 t = [0:dt:tf]';
 <<<<<<< HEAD
+<<<<<<< HEAD
 %x_init = [6*pi/180*sin(2*pi*5.4*t);6*pi^2*2*5.4/180*cos(2*pi*5.4*t)]; %intialize to sine and cos at 5.4 hertz frequency
 x_init = zeros(2*length(t),1);
 =======
 x_init = [6*pi/180*sin(2*pi*5.4*t)]; %intialize to sine and cos at 5.4 hertz frequency
 >>>>>>> f67a079be5e83328ebf301c26d36a9cfc816aadb
+=======
+x_init = [6*pi/180*sin(2*pi*5.4*t)]; %intialize to sine and cos at 5.4 hertz frequency
+>>>>>>> origin/master
 
 nnObj   = length(x_init); %number of input variables
 %set lower and uper bounds of decision variables to be within physical
