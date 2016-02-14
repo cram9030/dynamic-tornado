@@ -38,8 +38,9 @@ function [F,G] = dynamicTwist2016_2_6(x)
 %           forceTwist - array of required torque for specified tip twist
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-twist(:,1) = x(1:length(x)/2);
-twist(:,2) = x(1+length(x)/2:end);
+dt = 1/50;
+twist(:,1) = x(1:end-1);
+twist(:,2) = diff(x)/dt;
 
 %global tunnelWing K M C Cdp S_ref C_ref B_ref alpha_0 centroid ActLoc rhom_inf airSpeed
 tunnelWing = [];
@@ -167,12 +168,17 @@ parfor count = 1:length(twist(:,1))
     %disp(['Precent Complete: ',num2str(count/length(twist)*100)])
 end
 
-F = [mean(CD*.5*rhom_inf*U_inf^2*S_ref);
+F = [1000*mean(CD*.5*rhom_inf*U_inf^2*S_ref);
     mean(CL)*.5*rhom_inf*U_inf^2*S_ref;
     max(abs(twist(:,2)))/dt;
+    x(1)-x(end)
     CL*.5*rhom_inf*U_inf^2*S_ref;
-    twist(:,1)-cumtrapz(0:dt:dt*length(twist)-dt,twist(:,2))
     ];
+<<<<<<< HEAD
+F(1)
+=======
+F(1)/1000
 
+>>>>>>> f67a079be5e83328ebf301c26d36a9cfc816aadb
 % Define the derivatives.
 G=[];
