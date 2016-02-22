@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [F,G] = dynamicTwist2016_2_6(x)
+function [F,G] = dynamicTwist2016_2_21(x)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % dynamicTwist2016_2_6: Function for Dynamic TORNADO						
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -22,16 +22,29 @@ function [F,G] = dynamicTwist2016_2_6(x)
 %           forceTwist - array of required torque for specified tip twist
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-[CL,CD,Cm,Cl,Cn,LD] = dynamicTwist2016_2_21(x)
+load('OptimizationLoadFile2016_2_21.mat')
 
-F = [norm(10*CD*.5*rhom_inf*U_inf^2*S_ref);
+dt = 1/50;
+twist(:,1) = x(1:length(x)/2);
+twist(:,2) = x(1+length(x)/2:end);
+twistRate(:,1) = diff(twist(:,1))/dt;
+twistRate(:,2) = diff(twist(:,2))/dt;
+
+[CL,CD,Cm,Cl,Cn,LD] = dynamicTwistOutput2016_2_21(x);
+
+F = [mean(10*CD*.5*rhom_inf*U_inf^2*S_ref);
     mean(CL)*.5*rhom_inf*U_inf^2*S_ref;
-    max(abs(twist(:,2)))/dt;
-    x(1)-x(end)
+    max(max(abs(twistRate)))/dt;
+    twist(1,1)-twist(end,1);
+    twist(1,2)-twist(end,2);
+    twist(1,1)-twist(1,2);
+    twist(end,1)-twist(end,2);
     CL*.5*rhom_inf*U_inf^2*S_ref;
+    Cl*.5*rhom_inf*U_inf^2*S_ref*B_ref;
+    Cn*.5*rhom_inf*U_inf^2*S_ref*B_ref;
     ];
 
-mean(CD*.5*rhom_inf*U_inf^2*S_ref)
+mean(CD*.5*rhom_inf*U_inf^2*S_ref);
 
 % Define the derivatives.
 G=[];
