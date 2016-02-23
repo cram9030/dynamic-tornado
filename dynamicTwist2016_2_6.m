@@ -22,12 +22,30 @@ function [F,G] = dynamicTwist2016_2_6(x)
 %           forceTwist - array of required torque for specified tip twist
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-[CL,CD,Cm,Cl,Cn,LD] = dynamicTwist2016_2_21(x)
+tunnelWing = [];
+airSpeed = [];
+cordNum = [];
+ActLoc = [];
+C_ref = [];
+rhom_inf = [];
+centroid = [];
+S_ref = [];
+B_ref = [];
+alpha_root = [];
+sideSlip = [];
 
-F = [norm(10*CD*.5*rhom_inf*U_inf^2*S_ref);
+load('OptimizationLoadFile2016_2_21.mat')
+
+[CL,CD,Cm,Cl,Cn,LD] = dynamicTwistOutput2016_2_23(x);
+
+dt = 1/50;
+twist(:,1) = x(1:length(x));
+twistRate(:,1) = diff(twist(:,1))/dt;
+
+F = [mean(CD*.5*rhom_inf*U_inf^2*S_ref);
     mean(CL)*.5*rhom_inf*U_inf^2*S_ref;
-    max(abs(twist(:,2)))/dt;
-    x(1)-x(end)
+    max(abs(twist(:,1)))/dt;
+    x(1)-x(end);
     CL*.5*rhom_inf*U_inf^2*S_ref;
     ];
 
