@@ -21,7 +21,7 @@ function [CL,CD,Cm,Cl,Cn,LD] = dynamicTwistOutput2016_2_23(x)
 %           LD - array lift/drag ratio at the times from twist input
 %           forceTwist - array of required torque for specified tip twist
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+tic
 tunnelWing = [];
 airSpeed = [];
 cordNum = [];
@@ -177,3 +177,4 @@ parfor count = 1:length(twist(:,1))-1
 end
 
 LD = CL./CD;
+toc
