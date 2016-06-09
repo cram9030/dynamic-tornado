@@ -4,7 +4,8 @@ usrfun = 'dynamicTwist2016_2_6';
 
 % setup the snopt input parameters
 t = [0:dt:tfin]';
-x_init = [6*pi/180*sin(2*pi*5*t)]; %intialize to sine and cos at 5.4 hertz frequency
+x_init = [pi/180*sin(2*pi*5*t)]; %intialize to sine and cos at 5.4 hertz frequency
+%x_init = zeros(size(x_init));
 
 nnObj   = length(x_init); %number of input variables
 %set lower and uper bounds of decision variables to be within physical
@@ -50,7 +51,7 @@ warning('off','all')
 				    Flow,Fupp,Fmul,Fstate, ...
 				    @dynamicTwist2016_2_6,ObjAdd,ObjRow,A,iAfun,jAvar, ...
 				    iGfun,jGvar);
-Runtime = cputime-Runtime;
+Runtime = cputime-Runtime
 toc
 %%%%%%%%%%%%%%%%%%%%%%
 F(1)
