@@ -1,6 +1,20 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function Cd = calcFrictionDrag(U)
-
-%Equations from Fundamentals of Airplane Flight Mechanics and Aerodynamics
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% calcFrictionDrag: Function for Dynamic TORNADO						
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This function estimates the skin friction coefficent of drag of the wind
+% tunnel model of MADCAT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	Author:	Nick Cramer, UCSC, Department of Computer Engineering			
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CONTEXT:	Function for Dynamic TORNADO Aeroelastic Simulator					
+% Called by:	---------FILL IN LATER----------												
+% Calls:	MATLAB 5.2 std fcns
+% Inputs:   U - wind speed
+% Output:   Cd - Coefficient of drag from skin friction
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Note: Equations from Fundamentals of Airplane Flight Mechanics and Aerodynamics
 %for Engineers
 
 %Body and wing deminsions
