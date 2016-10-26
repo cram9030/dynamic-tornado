@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [masterState,masterLattice,masterGeo,masterResults,ref,CL,CD,LD,forceTwist] = dynamicTwist2016_7_23(M,C,K,SegNum,halfWingLength,cord,centroid,ActLoc,cordNum,bw,noseH,alpha_root,numSpanB,beta,q,airDensity,twist,Cdp)
+function [masterState,masterLattice,masterGeo,masterResults,ref,CL,CD,LD,forceTwist] = dynamicTwist2015_7_23(M,C,K,SegNum,halfWingLength,cord,centroid,ActLoc,cordNum,bw,noseH,alpha_root,numSpanB,beta,q,airDensity,twist,Cdp)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % dynamicTwist6_23_2015: Function for Dynamic TORNADO						
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
