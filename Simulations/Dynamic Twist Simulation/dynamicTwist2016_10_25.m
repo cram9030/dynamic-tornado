@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [CL,CD,Cm,Cl,Cn,LD,forceTwist,results] = dynamicTwist2016_10_25(M,C,K,centroid,ActLoc,cordNum,alpha_root,sideSlip,airSpeed,rhom_inf,twist,Cdp,S_ref,C_ref,B_ref,wing)
+function [CL,CD,Cm,Cl,Cn,LD,forceTwist,results] = dynamicTwist2017_2_1(M,C,K,centroid,ActLoc,cordNum,alpha_root,sideSlip,airSpeed,rhom_inf,twist,Cdp,S_ref,C_ref,B_ref,wing)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % dynamicTwist6_23_2015: Function for Dynamic TORNADO						
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

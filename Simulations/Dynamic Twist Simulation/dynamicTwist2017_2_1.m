@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [CL,CD,Cm,Cl,Cn,LD,forceTwist,results] = dynamicTwistConverge10_24_2016(M,C,K,centroid,ActLoc,cordNum,alpha_root,sideSlip,airSpeed,rhom_inf,twist,Cdp,S_ref,C_ref,B_ref,wing)
+function [CL,CD,Cm,Cl,Cn,LD,forceTwist,results] = dynamicTwist2017_2_1(M,C,K,centroid,ActLoc,cordNum,alpha_root,sideSlip,Q,rhom_inf,twist,Cdp,S_ref,C_ref,B_ref,wing)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % dynamicTwist6_23_2015: Function for Dynamic TORNADO						
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -39,9 +39,12 @@ function [CL,CD,Cm,Cl,Cn,LD,forceTwist,results] = dynamicTwistConverge10_24_2016
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 time = cputime;
 
-%Convert 
+%Air density in slug per cubic foot
+airDensity = 0.0023769; %Slug/ft^3
+
+%Convert
 twistRate = twist(:,3);
-twistAcc = twist(:,4);
+twist = twist(:,2);
 
 %Intialize clamped boundary condition for structure arrays
 K = K(6:end,6:end);
@@ -74,7 +77,9 @@ end
 alpha_root = alpha_root*pi/180;
 
 %parfor count = 1:length(twist(:,1))-1
-for count = 1:length(twist(:,1))-1
+for count = 1:length(twist(:,1))
+    
+    airSpeed = 0.3048*sqrt(2*Q(count)/airDensity);
     
     tempWing = wing;
     
@@ -84,24 +89,16 @@ for count = 1:length(twist(:,1))-1
     tipRotVelR = twistRate(count,1);
     
     aeroForces = zeros(length(K),1);
-    prevStaticTwistR = zeros(length(K),1);
     
-    error = 1;
-    while(error>0.01)
-        [results,forceTwist,pitchMoments,staticTwistR] = aeroelastic(K,C,aeroForces,tempWing,airSpeed,alpha_root,S_ref,C_ref,B_ref,centroid,cordNum,sideSlip,rhom_inf,tipTwistL,tipRotVelL,tipTwistR,tipRotVelR,airfoilRot,ActLoc);
-        aeroForces(5:5:end) = pitchMoments(1:length(pitchMoments)/2);
-        %staticTwistR
-        %prevStaticTwistR-staticTwistR
-        %prevStaticTwistR = staticTwistR;
-        error = norm(K*staticTwistR-aeroForces-[zeros(length(aeroForces)-1,1);forceTwist])/norm(aeroForces+[zeros(length(aeroForces)-1,1);forceTwist]);
-    end
+    [results,forceTwist,pitchMoments,staticTwistR] = aeroelastic(K,C,aeroForces,tempWing,airSpeed,alpha_root,S_ref,C_ref,B_ref,centroid,cordNum,sideSlip,rhom_inf,tipTwistL,tipRotVelL,tipTwistR,tipRotVelR,airfoilRot,ActLoc);
+    aeroForces(5:5:end) = pitchMoments(1:length(pitchMoments)/2);
     
     CL(count) = results.CL;
-    CD(count) = results.CD+interp1(Cdp(:,1),Cdp(:,2),tipTwistR)+calcFrictionDrag(airSpeed);
+    CD(count) = results.CD+interp1(Cdp(:,1),Cdp(:,2),tipTwistR)+calcBodyFrictionDrag(airSpeed);
     Cm(count) = results.Cm;
     Cl(count) = results.Cl;
     Cn(count) = results.Cn;
-    disp(['Precent Complete: ',num2str(count/length(twist)*100)])
+    %disp(['Precent Complete: ',num2str(count/length(twist)*100)])
 end
 
 LD = CL./CD;
@@ -115,6 +112,7 @@ function [results,forceTwist,pitchMoments,staticTwistR] = aeroelastic(K,C,force,
     vLoc = zeros(2,tempWing(1).wing.SegNum);
     alpha_aero = zeros(tempWing(1).wing.SegNum,1);
     artU_infMag = zeros(tempWing(1).wing.SegNum,1);
+    CdParasitic = zeros(tempWing(1).wing.SegNum*tempWing(1).wing.cordNum,1);
 
     %Intialize temporary variables
     tempK = zeros(size(K));
@@ -175,8 +173,13 @@ function [results,forceTwist,pitchMoments,staticTwistR] = aeroelastic(K,C,force,
     %Calculate artificial airspeed and aeroelastic angle of attack
     tempU_inf = [airSpeed*ones(1,tempWing(1).wing.cordNum*(tempWing(1).wing.SegNum));zeros(1,tempWing(1).wing.cordNum*(tempWing(1).wing.SegNum))];
     tempArtU_inf = zeros(2,tempWing(1).wing.SegNum*tempWing(1).wing.cordNum);
+    thickness = zeros(1,tempWing(1).wing.SegNum*tempWing(1).wing.cordNum);
+    cord = zeros(1,tempWing(1).wing.SegNum*tempWing(1).wing.cordNum);
+    
     for i = 0:cordNum-1
         tempArtU_inf(:,tempWing(1).wing.SegNum*i+1:tempWing(1).wing.SegNum*(i+1)) = airfoilRot(:,:,i+1)*[zeros(1,tempWing(1).wing.SegNum);norm([ActLoc(1);ActLoc(2)-(i*C_ref/cordNum)+.75*C_ref/cordNum],2)*[flipud(staticVelL(5:5:end));staticVelR(5:5:end)]'];
+        thickness(:,tempWing(1).wing.SegNum*i+1:tempWing(1).wing.SegNum*(i+1)) = tempWing(1).wing.thickness(i+1)*ones(1,tempWing(1).wing.SegNum);
+        cord(:,tempWing(1).wing.SegNum*i+1:tempWing(1).wing.SegNum*(i+1)) = tempWing(1).wing.cord(1:end-1)';
     end
     artU_inf = tempArtU_inf;
     alpha = alpha_root*ones(tempWing(1).wing.cordNum*tempWing(1).wing.SegNum,1);
@@ -184,6 +187,7 @@ function [results,forceTwist,pitchMoments,staticTwistR] = aeroelastic(K,C,force,
         vLoc(:,i) = [cos(alpha(i)) -sin(alpha(i));sin(alpha(i)) cos(alpha(i))]*tempU_inf(:,i)+artU_inf(:,i);
         alpha_aero(i) = atan(vLoc(2,i)/vLoc(1,i));
         artU_infMag(i) = norm(vLoc(:,i),2);
+        CdParasitic(i) = calcSectionFrictionDrag(artU_infMag(i),thickness(i),cord(i)/tempWing(1).wing.cordNum,tempWing(1).wing.span/tempWing(1).wing.SegNum);
     end
     
     tempWing(1).wing.Theta = Theta;
