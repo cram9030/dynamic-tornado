@@ -90,11 +90,13 @@ for count = 1:length(twist(:,1))
     
     aeroForces = zeros(length(K),1);
     
-    [results,forceTwist,pitchMoments,staticTwistR] = aeroelastic(K,C,aeroForces,tempWing,airSpeed,alpha_root,S_ref,C_ref,B_ref,centroid,cordNum,sideSlip,rhom_inf,tipTwistL,tipRotVelL,tipTwistR,tipRotVelR,airfoilRot,ActLoc);
+    [results,forceTwist,pitchMoments,staticTwistR,CdParasitic] = aeroelastic(K,C,aeroForces,tempWing,airSpeed,alpha_root,S_ref,C_ref,B_ref,centroid,cordNum,sideSlip,rhom_inf,tipTwistL,tipRotVelL,tipTwistR,tipRotVelR,airfoilRot,ActLoc);
     aeroForces(5:5:end) = pitchMoments(1:length(pitchMoments)/2);
     
+    q=0.5*rhom_inf*airSpeed^2;
+    
     CL(count) = results.CL;
-    CD(count) = results.CD+interp1(Cdp(:,1),Cdp(:,2),tipTwistR)+calcBodyFrictionDrag(airSpeed);
+    CD(count) = results.CD+interp1(Cdp(:,1),Cdp(:,2),tipTwistR)+calcBodyFrictionDrag(airSpeed)+calcFrictionDrag(airSpeed);
     Cm(count) = results.Cm;
     Cl(count) = results.Cl;
     Cn(count) = results.Cn;
@@ -105,7 +107,7 @@ LD = CL./CD;
 disp(['Time elapsed: ',num2str(cputime-time)])
 end
 
-function [results,forceTwist,pitchMoments,staticTwistR] = aeroelastic(K,C,force,tempWing,airSpeed,alpha_root,S_ref,C_ref,B_ref,centroid,cordNum,sideSlip,rhom_inf,tipTwistL,tipRotVelL,tipTwistR,tipRotVelR,airfoilRot,ActLoc)
+function [results,forceTwist,pitchMoments,staticTwistR,CdParasitic] = aeroelastic(K,C,force,tempWing,airSpeed,alpha_root,S_ref,C_ref,B_ref,centroid,cordNum,sideSlip,rhom_inf,tipTwistL,tipRotVelL,tipTwistR,tipRotVelR,airfoilRot,ActLoc)
     
     %Initialize alphas, Dihedrial angle, and forces to zero
     alpha = zeros(tempWing(1).wing.SegNum,1);

@@ -20,9 +20,7 @@ function fw = calcSectionFrictionDrag(U,t,c,s)
 %Note: Equations from Fundamentals of Airplane Flight Mechanics and Aerodynamics
 %for Engineers
 
-%This configuration does not seem to work. The combination of u,s,and c do
-%not seem to allow it to be simply added together and it is not worth it to
-%figure out the appropriate translation right now
+%This configuration does not seem to work. The nonlinairties of the u
 
 %Body and wing deminsions
 Sexposed = 2*s*c;

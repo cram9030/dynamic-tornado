@@ -41,14 +41,14 @@ function []=resultplot2015_8_13(JID,results,geo,lattice,state,ref);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 settings=config('startup');
 
-fname=strcat(JID,'-Cx');
-cd(settings.odir)
-save(fname,'results','geo','lattice','state','ref')
-cd(settings.hdir)
-
-cd(settings.odir)
-load(fname)
-cd(settings.hdir)   
+% fname=strcat(JID,'-Cx');
+% cd(settings.odir)
+% save(fname,'results','geo','lattice','state','ref')
+% cd(settings.hdir)
+% 
+% cd(settings.odir)
+% load(fname)
+% cd(settings.hdir)   
 
 [x y z]=midpoint(lattice.XYZ);
 d=size(z,2);
