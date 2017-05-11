@@ -122,9 +122,42 @@ for k = 1:geo.nwing
             threeQuartCord = .75*SegCord+[camberX(i),camberY(i)];
             trail = [camberX(i+1),camberY(i+1)];
             lead = [camberX(i),camberY(i)];
-            %Move values for spanwisepopulation up here and adapt
-            [xm,ym,zm,x1n,x2n,xTrailR,xTrailL,xLeadR,xLeadL,y1n,y2n,yTrailR,yTrailL,yLeadR,yLeadL,z1n,z2n,zTrailR,zTrailL,zLeadR,zLeadL] = ...
-                spanWisePopulate(geo.Wings(k).wing,SegCord,quartCord,threeQuartCord,trail,lead,xm,ym,zm,x1n,x2n,xTrailR,xTrailL,xLeadR,xLeadL,y1n,y2n,yTrailR,yTrailL,yLeadR,yLeadL,z1n,z2n,zTrailR,zTrailL,zLeadR,zLeadL);
+            
+            %Calculate the collocation point
+            alpha = 0.5*geo.Wings(k).wing.Theta(j+1)+0.5*geo.Wings(k).wing.Theta(j);
+            
+            
+            collocationCord = [interp1(geo.Wings(k).wing.Y,SegCord(1,:),0.5*geo.Wings(k).wing.Y(j+1)+0.5*geo.Wings(k).wing.Y(j));...
+                interp1(geo.Wings(k).wing.Y,SegCord(2,:),0.5*geo.Wings(k).wing.Y(j+1)+0.5*geo.Wings(k).wing.Y(j))];
+            if j < (wing.SegNum-1)/2+1
+                zm = [zm;0.5*geo.Wings(k).wing.Z(j+1)+.125*geo.Wings(k).wing.PhiZ(j+1)+0.5*geo.Wings(k).wing.Z(j)-0.125*geo.Wings(k).wing.PhiZ(j)+[sin(alpha),cos(alpha)]*(.75*collocationCord+(lead(:,j)+lead(:,j+1))/2)+geo.Wings(k).wing.start(3)];
+                xm = [xm;0.5*geo.Wings(k).wing.X(j+1)+.125*geo.Wings(k).wing.PhiX(j+1)+0.5*geo.Wings(k).wing.X(j)-0.125*geo.Wings(k).wing.PhiX(j)+[cos(alpha),-sin(alpha)]*(.75*collocationCord+(lead(:,j)+lead(:,j+1))/2)+geo.Wings(k).wing.start(1)];
+            else
+                zm = [zm;0.5*geo.Wings(k).wing.Z(j)+.125*geo.Wings(k).wing.PhiZ(j)+0.5*geo.Wings(k).wing.Z(j+1)-0.125*geo.Wings(k).wing.PhiZ(j+1)+[sin(alpha),cos(alpha)]*(.75*collocationCord+(lead(:,j)+lead(:,j+1))/2)+geo.Wings(k).wing.start(3)];
+                xm = [xm;0.5*geo.Wings(k).wing.X(j)+.125*geo.Wings(k).wing.PhiX(j)+0.5*geo.Wings(k).wing.X(j+1)-0.125*geo.Wings(k).wing.PhiX(j+1)+[cos(alpha),-sin(alpha)]*(.75*collocationCord+(lead(:,j)+lead(:,j+1))/2)+geo.Wings(k).wing.start(1)];
+            end
+            ym = [ym;(geo.Wings(k).wing.Y(j)+geo.Wings(k).wing.Y(j+1))/2];
+            %Calculate X and Z corrdinated based off twist
+            x1n = [x1n;geo.Wings(k).wing.X(j)+diag([cos(geo.Wings(k).wing.Theta(j)),-sin(geo.Wings(k).wing.Theta(j))]*quartCord(:,j))+geo.Wings(k).wing.start(1)];
+            x2n = [x2n;geo.Wings(k).wing.X(j+1)+diag([cos(geo.Wings(k).wing.Theta(j+1)),-sin(geo.Wings(k).wing.Theta(j+1))]*quartCord(:,j+1))+geo.Wings(k).wing.start(1)];
+            xTrailR = [xTrailR;geo.Wings(k).wing.X(j)+diag([cos(geo.Wings(k).wing.Theta(j)),-sin(geo.Wings(k).wing.Theta(j))]*trail(:,j))+geo.Wings(k).wing.start(1)];
+            xTrailL = [xTrailL;geo.Wings(k).wing.X(j+1)+diag([cos(geo.Wings(k).wing.Theta(j+1)),-sin(geo.Wings(k).wing.Theta(j+1))]*trail(:,j+1))+geo.Wings(k).wing.start(1)];
+            xLeadR = [xLeadR;geo.Wings(k).wing.X(j)+diag([cos(geo.Wings(k).wing.Theta(j)),-sin(geo.Wings(k).wing.Theta(j))]*lead(:,j))+geo.Wings(k).wing.start(1)];
+            xLeadL = [xLeadL;geo.Wings(k).wing.X(j+1)+diag([cos(geo.Wings(k).wing.Theta(j+1)),-sin(geo.Wings(k).wing.Theta(j+1))]*lead(:,j+1))+geo.Wings(k).wing.start(1)];
+            %
+            z1n = [z1n;geo.Wings(k).wing.Z(j)+diag([sin(geo.Wings(k).wing.Theta(j)),cos(geo.Wings(k).wing.Theta(j))]*quartCord(:,j))+geo.Wings(k).wing.start(3)];
+            z2n = [z2n;geo.Wings(k).wing.Z(j)+diag([sin(geo.Wings(k).wing.Theta(j+1)),cos(geo.Wings(k).wing.Theta(j+1))]*quartCord(:,j+1))+geo.Wings(k).wing.start(3)];
+            zTrailR = [zTrailR;geo.Wings(k).wing.Z(j)+diag([sin(geo.Wings(k).wing.Theta(j)),cos(geo.Wings(k).wing.Theta(j))]*trail(:,j))+geo.Wings(k).wing.start(3)];
+            zTrailL = [zTrailL;geo.Wings(k).wing.Z(j)+diag([sin(geo.Wings(k).wing.Theta(j+1)),cos(geo.Wings(k).wing.Theta(j+1))]*trail(:,j+1))+geo.Wings(k).wing.start(3)];
+            zLeadR = [zLeadR;geo.Wings(k).wing.Z(j)+diag([sin(geo.Wings(k).wing.Theta(j)),cos(geo.Wings(k).wing.Theta(j))]*lead(:,j))+geo.Wings(k).wing.start(3)];
+            zLeadL = [zLeadL;geo.Wings(k).wing.Z(j)+diag([sin(geo.Wings(k).wing.Theta(j+1)),cos(geo.Wings(k).wing.Theta(j+1))]*lead(:,j+1))+geo.Wings(k).wing.start(3)];
+            %
+            yTrailR = [yTrailR;geo.Wings(k).wing.Y(1:end-1)+geo.Wings(k).wing.start(2)];
+            yTrailL = [yTrailL;geo.Wings(k).wing.Y(2:end)+geo.Wings(k).wing.start(2)];
+            yLeadR = [yLeadR;geo.Wings(k).wing.Y(1:end-1)+geo.Wings(k).wing.start(2)];
+            yLeadL = [yLeadL;geo.Wings(k).wing.Y(2:end)+geo.Wings(k).wing.start(2)];
+            y1n = [y1n;geo.Wings(k).wing.Y(1:end-1)+geo.Wings(k).wing.start(2)];
+            y2n = [y2n;geo.Wings(k).wing.Y(2:end)+geo.Wings(k).wing.start(2)];
         end
     end
 end
