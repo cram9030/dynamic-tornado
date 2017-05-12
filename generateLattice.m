@@ -111,7 +111,7 @@ for k = 1:geo.nwing
         %Interpolate the the mean camber for the number of cordwise
         %sections
         camberX = [0:geo.Wings(k).wing.chord/geo.Wings(k).wing.cordNum:geo.Wings(k).wing.chord];
-        camberY = interp1(geo.Wings(k).wing.meanCamber(j).camber(:,1)*geo.Wings(k).wing.chord,geo.Wings(k).wing.meanCamber(j).camber(:,2)*geo.Wings(k).wing.chord,cmaberX);
+        camberY = interp1(geo.Wings(k).wing.meanCamber(j).camber(:,1)*geo.Wings(k).wing.chord(j),geo.Wings(k).wing.meanCamber(j).camber(:,2)*geo.Wings(k).wing.chord(j),camberX,'pchip');
         %Go through each cord section
         for i = 1:geo.Wings(k).wing.cordNum
             %Create the chord of segment wing slice on the mean camber line
@@ -125,10 +125,8 @@ for k = 1:geo.nwing
             
             %Calculate the collocation point
             alpha = 0.5*geo.Wings(k).wing.Theta(j+1)+0.5*geo.Wings(k).wing.Theta(j);
-            
-            
-            collocationCord = [interp1(geo.Wings(k).wing.Y,SegCord(1,:),0.5*geo.Wings(k).wing.Y(j+1)+0.5*geo.Wings(k).wing.Y(j));...
-                interp1(geo.Wings(k).wing.Y,SegCord(2,:),0.5*geo.Wings(k).wing.Y(j+1)+0.5*geo.Wings(k).wing.Y(j))];
+            collocationCord = [interp1(geo.Wings(k).wing.Y,SegCord(1),0.5*geo.Wings(k).wing.Y(j+1)+0.5*geo.Wings(k).wing.Y(j));...
+                interp1(geo.Wings(k).wing.Y,SegCord(2),0.5*geo.Wings(k).wing.Y(j+1)+0.5*geo.Wings(k).wing.Y(j))];
             if j < (wing.SegNum-1)/2+1
                 zm = [zm;0.5*geo.Wings(k).wing.Z(j+1)+.125*geo.Wings(k).wing.PhiZ(j+1)+0.5*geo.Wings(k).wing.Z(j)-0.125*geo.Wings(k).wing.PhiZ(j)+[sin(alpha),cos(alpha)]*(.75*collocationCord+(lead(:,j)+lead(:,j+1))/2)+geo.Wings(k).wing.start(3)];
                 xm = [xm;0.5*geo.Wings(k).wing.X(j+1)+.125*geo.Wings(k).wing.PhiX(j+1)+0.5*geo.Wings(k).wing.X(j)-0.125*geo.Wings(k).wing.PhiX(j)+[cos(alpha),-sin(alpha)]*(.75*collocationCord+(lead(:,j)+lead(:,j+1))/2)+geo.Wings(k).wing.start(1)];
