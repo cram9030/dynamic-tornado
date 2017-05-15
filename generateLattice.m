@@ -107,27 +107,31 @@ zm = [];
 
 %Iterate through all the wings 
 for k = 1:geo.nwing
-    for j = 1:geo.Wings(k).wing.SegNum
-        %Interpolate the the mean camber for the number of cordwise
-        %sections
-        camberX = [0:geo.Wings(k).wing.chord/geo.Wings(k).wing.cordNum:geo.Wings(k).wing.chord];
-        camberY = interp1(geo.Wings(k).wing.meanCamber(j).camber(:,1)*geo.Wings(k).wing.chord(j),geo.Wings(k).wing.meanCamber(j).camber(:,2)*geo.Wings(k).wing.chord(j),camberX,'pchip');
-        %Go through each cord section
-        for i = 1:geo.Wings(k).wing.cordNum
-            %Create the chord of segment wing slice on the mean camber line
-            SegCord = [camberX(i+1)-camberX(i),camberY(i+1)-camberY(i)];
-            %Calculate quarter cord, 3/4 cord and leading and trealing edge
-            %of the panel segment
-            quartCord = .25*SegCord+[camberX(i),camberY(i)];
-            threeQuartCord = .75*SegCord+[camberX(i),camberY(i)];
-            trail = [camberX(i+1),camberY(i+1)];
-            lead = [camberX(i),camberY(i)];
-            
+    
+    %Interpolate the the mean camber for the number of cordwise sections
+    camberX = 0:1/geo.Wings(k).wing.cordNum:1;
+    camberY = zeros(length(camberX),geo.Wings(k).wing.SegNum+1);
+    for j = 1:geo.Wings(k).wing.SegNum+1
+        camberY(:,j) = interp1(geo.Wings(k).wing.meanCamber(j).camber(:,1),geo.Wings(k).wing.meanCamber(j).camber(:,2),camberX,'pchip');
+    end
+    
+    %Go through each cord section
+    for i = 1:geo.Wings(k).wing.cordNum
+        %Create the chord of segment wing slice on the mean camber line
+        SegCord = [(camberX(i+1)-camberX(i))*geo.Wings.wing.chord';(camberY(i+1,:)-camberY(i,:)).*geo.Wings.wing.chord'];
+        %Calculate quarter cord, 3/4 cord and leading and trealing edge
+        %of the panel segment
+        quartCord = .25*SegCord+[camberX(i);camberY(i)]*geo.Wings.wing.chord';
+        threeQuartCord = .75*SegCord+[camberX(i);camberY(i)]*geo.Wings.wing.chord';
+        trail = [camberX(i+1);camberY(i+1)]*geo.Wings.wing.chord';
+        lead = [camberX(i);camberY(i)]*geo.Wings.wing.chord';
+        for j = 1:geo.Wings(k).wing.SegNum
             %Calculate the collocation point
             alpha = 0.5*geo.Wings(k).wing.Theta(j+1)+0.5*geo.Wings(k).wing.Theta(j);
-            collocationCord = [interp1(geo.Wings(k).wing.Y,SegCord(1),0.5*geo.Wings(k).wing.Y(j+1)+0.5*geo.Wings(k).wing.Y(j));...
-                interp1(geo.Wings(k).wing.Y,SegCord(2),0.5*geo.Wings(k).wing.Y(j+1)+0.5*geo.Wings(k).wing.Y(j))];
-            if j < (wing.SegNum-1)/2+1
+            collocationCord = [interp1(geo.Wings(k).wing.Y,SegCord(1,:),0.5*geo.Wings(k).wing.Y(j+1)+0.5*geo.Wings(k).wing.Y(j));...
+                interp1(geo.Wings(k).wing.Y,SegCord(2,:),0.5*geo.Wings(k).wing.Y(j+1)+0.5*geo.Wings(k).wing.Y(j))];
+            %collocationCord = [interp1(wing.Y,SegCord(1,:),0.5*wing.Y(j+1)+0.5*wing.Y(j));interp1(wing.Y,SegCord(2,:),0.5*wing.Y(j+1)+0.5*wing.Y(j))];
+            if j < (geo.Wings(k).wing.SegNum-1)/2+1
                 zm = [zm;0.5*geo.Wings(k).wing.Z(j+1)+.125*geo.Wings(k).wing.PhiZ(j+1)+0.5*geo.Wings(k).wing.Z(j)-0.125*geo.Wings(k).wing.PhiZ(j)+[sin(alpha),cos(alpha)]*(.75*collocationCord+(lead(:,j)+lead(:,j+1))/2)+geo.Wings(k).wing.start(3)];
                 xm = [xm;0.5*geo.Wings(k).wing.X(j+1)+.125*geo.Wings(k).wing.PhiX(j+1)+0.5*geo.Wings(k).wing.X(j)-0.125*geo.Wings(k).wing.PhiX(j)+[cos(alpha),-sin(alpha)]*(.75*collocationCord+(lead(:,j)+lead(:,j+1))/2)+geo.Wings(k).wing.start(1)];
             else
@@ -149,14 +153,13 @@ for k = 1:geo.nwing
             zTrailL = [zTrailL;geo.Wings(k).wing.Z(j)+diag([sin(geo.Wings(k).wing.Theta(j+1)),cos(geo.Wings(k).wing.Theta(j+1))]*trail(:,j+1))+geo.Wings(k).wing.start(3)];
             zLeadR = [zLeadR;geo.Wings(k).wing.Z(j)+diag([sin(geo.Wings(k).wing.Theta(j)),cos(geo.Wings(k).wing.Theta(j))]*lead(:,j))+geo.Wings(k).wing.start(3)];
             zLeadL = [zLeadL;geo.Wings(k).wing.Z(j)+diag([sin(geo.Wings(k).wing.Theta(j+1)),cos(geo.Wings(k).wing.Theta(j+1))]*lead(:,j+1))+geo.Wings(k).wing.start(3)];
-            %
-            yTrailR = [yTrailR;geo.Wings(k).wing.Y(1:end-1)+geo.Wings(k).wing.start(2)];
-            yTrailL = [yTrailL;geo.Wings(k).wing.Y(2:end)+geo.Wings(k).wing.start(2)];
-            yLeadR = [yLeadR;geo.Wings(k).wing.Y(1:end-1)+geo.Wings(k).wing.start(2)];
-            yLeadL = [yLeadL;geo.Wings(k).wing.Y(2:end)+geo.Wings(k).wing.start(2)];
-            y1n = [y1n;geo.Wings(k).wing.Y(1:end-1)+geo.Wings(k).wing.start(2)];
-            y2n = [y2n;geo.Wings(k).wing.Y(2:end)+geo.Wings(k).wing.start(2)];
         end
+        yTrailR = [yTrailR;geo.Wings(k).wing.Y(1:end-1)+geo.Wings(k).wing.start(2)];
+        yTrailL = [yTrailL;geo.Wings(k).wing.Y(2:end)+geo.Wings(k).wing.start(2)];
+        yLeadR = [yLeadR;geo.Wings(k).wing.Y(1:end-1)+geo.Wings(k).wing.start(2)];
+        yLeadL = [yLeadL;geo.Wings(k).wing.Y(2:end)+geo.Wings(k).wing.start(2)];
+        y1n = [y1n;geo.Wings(k).wing.Y(1:end-1)+geo.Wings(k).wing.start(2)];
+        y2n = [y2n;geo.Wings(k).wing.Y(2:end)+geo.Wings(k).wing.start(2)];
     end
 end
 
