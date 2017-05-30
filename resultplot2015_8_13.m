@@ -228,99 +228,99 @@ text(0.3,-.05,'Mach: ');    text(.45,-.05,num2str(Mach));
 %%%%%
 %
 %%%%%
-figure(8)
-axis off
-grid on
-text(0,1,'TORNADO CALCULATION RESULTS, Derivatives')
-text(0,.95,'JID: ');                text(0.25,0.95,JID)
-text(0,.90,'Reference area: ');	    text(0.25,0.90,num2str( ref.S_ref ));	
-text(0,.85,'Reference chord: ');    text(0.25,.85,num2str(ref.C_mac));
-text(0,.8,'Reference span: ');      text(0.25,.8,num2str(ref.b_ref));
-  
-   
-text(0.4,.90,'\alpha [deg]: '); 	text(.55,.9,num2str(state.alpha_root*180/pi));
-text(0.4,.85, '\beta [deg]: ');     text(.55,.85,num2str(state.betha*180/pi));
-text(0.4,.8,'Airspeed: ');          text(.55,.8,num2str(state.U_inf));
-
-text(0.65,.9, 'P [rad/s]: ');  		text(.8,.9,num2str(state.P));
-text(0.65,.85,'Q[rad/s]: '); 		text(.8,.85,num2str(state.Q));
-text(0.65,.8,' R[rad/s]: ');  		text(.8,.8,num2str(state.R));
-
-figure(8)
-text(0,.7,'CL derivatives : ');			
-
-text(0,.65,'CL_{\alpha}');		    text(0.15,.65,num2str(results.CL_a));
-text(0,.6,'CL_{\beta}');		    text(0.15,.6,num2str(results.CL_b));
-text(0,.55,'CL_P');			        text(0.15,.55,num2str(results.CL_P));
-text(0,.5,'CL_Q');			        text(0.15,.5,num2str(results.CL_Q));
-text(0,.45,'CL_R');			        text(0.15,.45,num2str(results.CL_R));
-   
-text(0,.35,'Roll derivatives : ');			
-   
-text(0,.3,'Cl_{\alpha}');		    text(0.15,.3,num2str(results.Cl_a));
-text(0,.25,'Cl_{\beta}');		    text(0.15,.25,num2str(results.Cl_b));
-text(0,.2,'Cl_P');			        text(0.15,.2,num2str(results.Cl_P));
-text(0,.15,'Cl_Q');			        text(0.15,.15,num2str(results.Cl_Q));
-text(0,.1,'Cl_R');			        text(0.15,.1,num2str(results.Cl_R));
-   
-text(0.35,.7,'CD derivatives : ');			
-
-text(0.35,.65,'CD_{\alpha}');	text(0.5,.65,num2str(results.CD_a));
-text(0.35,.6,'CD_{\beta}');	text(0.5,.6,num2str(results.CD_b));
-text(0.35,.55,'CD_P');		text(0.5,.55,num2str(results.CD_P));
-text(0.35,.5,'CD_Q');		text(0.5,.5,num2str(results.CD_Q));
-text(0.35,.45,'CD_R');		text(0.5,.45,num2str(results.CD_R));
-   
-text(0.35,.35,'Pitch derivatives : ');			
-
-text(0.35,.3,'Cm_{\alpha}');	text(.5,.3,num2str(results.Cm_a));
-text(0.35,.25,'Cm_{\beta}');	text(0.5,.25,num2str(results.Cm_b));
-text(0.35,.2,'Cm_P');		text(0.5,.2,num2str(results.Cm_P));
-text(0.35,.15,'Cm_Q');		text(0.5,.15,num2str(results.Cm_Q));
-text(0.35,.1,'Cm_R');		text(0.5,.1,num2str(results.Cm_R));
-   
-text(0.7,.7,'CY derivatives : ');			
-
-text(0.7,.65,'CY_{\alpha}');	text(0.85,.65,num2str(results.CY_a));
-text(0.7,.6,'CY_{\beta}');		text(0.85,.6,num2str(results.CY_b));
-text(0.7,.55,'CY_P');		text(0.85,.55,num2str(results.CY_P));
-text(0.7,.5,'CY_Q');			text(0.85,.5,num2str(results.CY_Q));
-text(0.7,.45,'CY_R');		text(0.85,.45,num2str(results.CY_R));
-   
-text(0.7,.35,'Yaw derivatives : ');			
-
-text(0.7,.3,'Cn_{\alpha}');	text(.85,.3,num2str(results.Cn_a));
-text(0.7,.25,'Cn_{\beta}');	text(0.85,.25,num2str(results.Cn_b));
-text(0.7,.2,'Cn_P');			text(0.85,.2,num2str(results.Cn_P));
-text(0.7,.15,'Cn_Q');		text(0.85,.15,num2str(results.Cn_Q));
-text(0.7,.1,'Cn_R');			text(0.85,.1,num2str(results.Cn_R));
-   
-   
-figure(9)
-
-axis off
-%grid on
-text(0,1,'TORNADO CALCULATION RESULTS, Central difference, RUDDER DERIVs')
-text(0,.95,'JID: '); text(0.25,0.95,JID)
-
-text(0,.90,'Reference area: ');	text(0.25,0.90,num2str(ref.S_ref));	
-text(0,.85,'Reference chord: ');text(0.25,.85,num2str(ref.C_mac));
-text(0,.8,'Reference span: ');text(0.25,.8,num2str(ref.b_ref));
-   
-text(0.4,.90,'\alpha: '); 	text(.55,.9,num2str(state.alpha_root*180/pi));
-text(0.4,.85,'\beta: ');     text(.55,.85,num2str(state.betha*180/pi));
-text(0.4,.8,'Airspeed: ');  text(.55,.8,num2str(state.U_inf));
-
-text(0.65,.9,'P: ');  		text(.8,.9,num2str(state.P));
-text(0.65,.85,'Q: '); 		text(.8,.85,num2str(state.Q));
-text(0.65,.8,'R: ');  		text(.8,.8,num2str(state.R));
-
-text(0,.45,'CL_{\delta}');			text(0.15,.45,num2str(results.CL_d'));
-text(0,.05,'Cl_{\delta}');			text(0.15,.05,num2str(results.Cl_d'));
-text(0.35,.45,'CD_{\delta}');		text(0.5,.45,num2str(results.CD_d'));
-text(0.35,.05,'Cm_{\delta}');		text(0.5,.05,num2str(results.Cm_d'));
-text(0.7,.45,'CY_{\delta}');		text(0.85,.45,num2str(results.CY_d'));
-text(0.7,.05,'Cn_{\delta}');		text(0.85,.05,num2str(results.Cn_d'));
+% figure(8)
+% axis off
+% grid on
+% text(0,1,'TORNADO CALCULATION RESULTS, Derivatives')
+% text(0,.95,'JID: ');                text(0.25,0.95,JID)
+% text(0,.90,'Reference area: ');	    text(0.25,0.90,num2str( ref.S_ref ));	
+% text(0,.85,'Reference chord: ');    text(0.25,.85,num2str(ref.C_mac));
+% text(0,.8,'Reference span: ');      text(0.25,.8,num2str(ref.b_ref));
+%   
+%    
+% text(0.4,.90,'\alpha [deg]: '); 	text(.55,.9,num2str(state.alpha_root*180/pi));
+% text(0.4,.85, '\beta [deg]: ');     text(.55,.85,num2str(state.betha*180/pi));
+% text(0.4,.8,'Airspeed: ');          text(.55,.8,num2str(state.U_inf));
+% 
+% text(0.65,.9, 'P [rad/s]: ');  		text(.8,.9,num2str(state.P));
+% text(0.65,.85,'Q[rad/s]: '); 		text(.8,.85,num2str(state.Q));
+% text(0.65,.8,' R[rad/s]: ');  		text(.8,.8,num2str(state.R));
+% 
+% figure(8)
+% text(0,.7,'CL derivatives : ');			
+% 
+% text(0,.65,'CL_{\alpha}');		    text(0.15,.65,num2str(results.CL_a));
+% text(0,.6,'CL_{\beta}');		    text(0.15,.6,num2str(results.CL_b));
+% text(0,.55,'CL_P');			        text(0.15,.55,num2str(results.CL_P));
+% text(0,.5,'CL_Q');			        text(0.15,.5,num2str(results.CL_Q));
+% text(0,.45,'CL_R');			        text(0.15,.45,num2str(results.CL_R));
+%    
+% text(0,.35,'Roll derivatives : ');			
+%    
+% text(0,.3,'Cl_{\alpha}');		    text(0.15,.3,num2str(results.Cl_a));
+% text(0,.25,'Cl_{\beta}');		    text(0.15,.25,num2str(results.Cl_b));
+% text(0,.2,'Cl_P');			        text(0.15,.2,num2str(results.Cl_P));
+% text(0,.15,'Cl_Q');			        text(0.15,.15,num2str(results.Cl_Q));
+% text(0,.1,'Cl_R');			        text(0.15,.1,num2str(results.Cl_R));
+%    
+% text(0.35,.7,'CD derivatives : ');			
+% 
+% text(0.35,.65,'CD_{\alpha}');	text(0.5,.65,num2str(results.CD_a));
+% text(0.35,.6,'CD_{\beta}');	text(0.5,.6,num2str(results.CD_b));
+% text(0.35,.55,'CD_P');		text(0.5,.55,num2str(results.CD_P));
+% text(0.35,.5,'CD_Q');		text(0.5,.5,num2str(results.CD_Q));
+% text(0.35,.45,'CD_R');		text(0.5,.45,num2str(results.CD_R));
+%    
+% text(0.35,.35,'Pitch derivatives : ');			
+% 
+% text(0.35,.3,'Cm_{\alpha}');	text(.5,.3,num2str(results.Cm_a));
+% text(0.35,.25,'Cm_{\beta}');	text(0.5,.25,num2str(results.Cm_b));
+% text(0.35,.2,'Cm_P');		text(0.5,.2,num2str(results.Cm_P));
+% text(0.35,.15,'Cm_Q');		text(0.5,.15,num2str(results.Cm_Q));
+% text(0.35,.1,'Cm_R');		text(0.5,.1,num2str(results.Cm_R));
+%    
+% text(0.7,.7,'CY derivatives : ');			
+% 
+% text(0.7,.65,'CY_{\alpha}');	text(0.85,.65,num2str(results.CY_a));
+% text(0.7,.6,'CY_{\beta}');		text(0.85,.6,num2str(results.CY_b));
+% text(0.7,.55,'CY_P');		text(0.85,.55,num2str(results.CY_P));
+% text(0.7,.5,'CY_Q');			text(0.85,.5,num2str(results.CY_Q));
+% text(0.7,.45,'CY_R');		text(0.85,.45,num2str(results.CY_R));
+%    
+% text(0.7,.35,'Yaw derivatives : ');			
+% 
+% text(0.7,.3,'Cn_{\alpha}');	text(.85,.3,num2str(results.Cn_a));
+% text(0.7,.25,'Cn_{\beta}');	text(0.85,.25,num2str(results.Cn_b));
+% text(0.7,.2,'Cn_P');			text(0.85,.2,num2str(results.Cn_P));
+% text(0.7,.15,'Cn_Q');		text(0.85,.15,num2str(results.Cn_Q));
+% text(0.7,.1,'Cn_R');			text(0.85,.1,num2str(results.Cn_R));
+%    
+%    
+% figure(9)
+% 
+% axis off
+% %grid on
+% text(0,1,'TORNADO CALCULATION RESULTS, Central difference, RUDDER DERIVs')
+% text(0,.95,'JID: '); text(0.25,0.95,JID)
+% 
+% text(0,.90,'Reference area: ');	text(0.25,0.90,num2str(ref.S_ref));	
+% text(0,.85,'Reference chord: ');text(0.25,.85,num2str(ref.C_mac));
+% text(0,.8,'Reference span: ');text(0.25,.8,num2str(ref.b_ref));
+%    
+% text(0.4,.90,'\alpha: '); 	text(.55,.9,num2str(state.alpha_root*180/pi));
+% text(0.4,.85,'\beta: ');     text(.55,.85,num2str(state.betha*180/pi));
+% text(0.4,.8,'Airspeed: ');  text(.55,.8,num2str(state.U_inf));
+% 
+% text(0.65,.9,'P: ');  		text(.8,.9,num2str(state.P));
+% text(0.65,.85,'Q: '); 		text(.8,.85,num2str(state.Q));
+% text(0.65,.8,'R: ');  		text(.8,.8,num2str(state.R));
+% 
+% text(0,.45,'CL_{\delta}');			text(0.15,.45,num2str(results.CL_d'));
+% text(0,.05,'Cl_{\delta}');			text(0.15,.05,num2str(results.Cl_d'));
+% text(0.35,.45,'CD_{\delta}');		text(0.5,.45,num2str(results.CD_d'));
+% text(0.35,.05,'Cm_{\delta}');		text(0.5,.05,num2str(results.Cm_d'));
+% text(0.7,.45,'CY_{\delta}');		text(0.85,.45,num2str(results.CY_d'));
+% text(0.7,.05,'Cn_{\delta}');		text(0.85,.05,num2str(results.Cn_d'));
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

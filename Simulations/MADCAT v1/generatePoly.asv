@@ -1,0 +1,49 @@
+function polyCoef = generatePoly(geo,S_ref,C_ref,B_ref,mac_pos,AoA,speed,airDensity,totalPanels,twist,spanDegree,angleDegree)
+
+%Intialize output
+liftPolyCoef = zeros(length(AoA),spanDegree+1);
+polyCoef = zeros(spanDegree+1,2*(angleDegree+1));
+spanCoeff = zeros(length(twist),angleDegree+1,spanDegree+1);
+a = zeros(length(twist),2);
+b = zeros(length(twist),2);
+c = zeros(length(twist),2);
+d = zeros(length(twist),2);
+e = zeros(length(twist),2);
+
+%Iterate through all the requested twists
+for i = 1:length(twist)
+    [spanCL,~,~,~,~,~,~] = symmetricAoASweep(geo,S_ref,C_ref,B_ref,mac_pos,AoA,speed,airDensity,totalPanels,twist(i));
+    % Find coefficient for fourth order polynomial for each spanwise lift
+    % coefficents
+    for j = 1:length(AoA)
+        liftPolyCoef(j,:) = polyfit(geo.Wings.wing.L/2+geo.Wings.wing.Y(2:end),spanCL(:,j),spanDegree);
+    end
+    % Fit the spanwise coefficent linear fit for the angle of attack
+    for j = 1:spanDegree+1
+        spanCoeff(i,:,j) = polyfit(AoA',liftPolyCoef(:,j),1);
+    end
+%     a(i,:) = polyfit(AoA',liftPolyCoef(:,1),1);
+%     b(i,:) = polyfit(AoA',liftPolyCoef(:,2),1);
+%     c(i,:) = polyfit(AoA',liftPolyCoef(:,3),1);
+%     d(i,:) = polyfit(AoA',liftPolyCoef(:,4),1);
+%     e(i,:) = polyfit(AoA',liftPolyCoef(:,5),1);
+end
+
+% Fit the angle of attack coefficents to twist coefficents
+for i = 1:spanDegree+1 
+    for j = 1:angleDegree+1
+        polyCoef(i,(j-1)*angleDegree+1:2*angleDegree) = polyfit(twist',spanCoeff(:,j,i),1);
+    end
+%     polyCoef(i,1:2) = polyfit(twist',spanCoeff(:,1,i),1);
+%     polyCoef(i,3:4) = polyfit(twist',spanCoeff(:,2,i),1);
+end
+% polyCoef(1,1:2) = polyfit(twist',a(:,1),1);
+% polyCoef(1,3:4) = polyfit(twist',a(:,2),1);
+% polyCoef(2,1:2) = polyfit(twist',b(:,1),1);
+% polyCoef(2,3:4) = polyfit(twist',b(:,2),1);
+% polyCoef(3,1:2) = polyfit(twist',c(:,1),1);
+% polyCoef(3,3:4) = polyfit(twist',c(:,2),1);
+% polyCoef(4,1:2) = polyfit(twist',d(:,1),1);
+% polyCoef(4,3:4) = polyfit(twist',d(:,2),1);
+% polyCoef(5,1:2) = polyfit(twist',e(:,1),1);
+% polyCoef(5,3:4) = polyfit(twist',e(:,2),1);

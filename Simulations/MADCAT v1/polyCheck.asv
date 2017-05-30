@@ -1,0 +1,62 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function CL_local = polyCheck(polyCoef,yStation,AoA,twist,spanDegree,angleDegree)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% polyCheck: Function for MADCAT v1 Simulations					
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%This function is intended to check the results of the generatePoly
+%function that is used to generate a polynomial estimate of the spanwise
+%lifting values with respect to the angle of attack and tip twist
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	Author:	Nick Cramer, UCSC, Department of Computer Engineering			
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Inputs:   polyCoef -  this is a 4X5 Matrix where for each column the pair
+%                       of rows are a linear polynomial representation of the angle of attack
+%                       coefficents representing the spanwise lifting distribution
+% Output:   CL_local -  the resulting local lift coefficents using the
+%                       input polynomical
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Intialize local lift parameters
+CL_local = zeros(length(AoA),length(yStation));
+
+%Iterate through the angle of attackes
+for i = 1:length(AoA)
+    abAlpha = zeros(spanDegree+1,2*(angleDegree+1));
+    %Use the polynomial fitting of the twist to get the coefficient of the
+    %polynomial fit of the spanwise lift coefficents with angle of attack
+    for j = 1:spanDegree+1
+        for k = 1:angleDegree+1
+            abAlpha(j,(k-1)*(angleDegree+1)+1:k*(angleDegree+1)) = polyval(polyCoef(j,(k-1)*(angleDegree+1)+1:k*(angleDegree+1)),twist);
+        end
+%         abAlpha(j,1:2) = polyval(polyCoef(j,1:2),twist);
+%         abAlpha(j,3:4) = polyval(polyCoef(j,3:4),twist);
+    end
+%     aAlpha_a = polyval(polyCoef(1,1:2),twist);
+%     aAlpha_b = polyval(polyCoef(1,3:4),twist);
+%     bAlpha_a = polyval(polyCoef(2,1:2),twist);
+%     bAlpha_b = polyval(polyCoef(2,3:4),twist);
+%     cAlpha_a = polyval(polyCoef(3,1:2),twist);
+%     cAlpha_b = polyval(polyCoef(3,3:4),twist);
+%     dAlpha_a = polyval(polyCoef(4,1:2),twist);
+%     dAlpha_b = polyval(polyCoef(4,3:4),twist);
+%     eAlpha_a = polyval(polyCoef(5,1:2),twist);
+%     eAlpha_b = polyval(polyCoef(5,3:4),twist);
+    liftPoly = zeros(1,spanDegree+1);
+    %Use the polynomial fitting of angle of attack to the coefficents of
+    %the spanwise lifting distribution
+    for j = 1:spanDegree+1
+        temp = zeros(1,2*(angleDegree+1));
+        for k = 1:angleDegree+1
+            temp = [abAlpha(j,(k-1)*(angleDegree+1)+1:k*(angleDegree+1))
+        end
+        liftPoly(j) = polyval([abAlpha(j,1:2),abAlpha(j,3:4)],AoA(i));
+    end
+%     a = polyval([aAlpha_a,aAlpha_b],AoA(i));
+%     b = polyval([bAlpha_a,bAlpha_b],AoA(i));
+%     c = polyval([cAlpha_a,cAlpha_b],AoA(i));
+%     d = polyval([dAlpha_a,dAlpha_b],AoA(i));
+%     e = polyval([eAlpha_a,eAlpha_b],AoA(i));
+    %Polpulate the spanwise lifting coefficent
+    CL_local(i,:) = polyval(liftPoly,yStation);
+end
+CL_local = CL_local';
