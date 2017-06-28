@@ -112,7 +112,7 @@ for k = 1:geo.nwing
     camberX = 0:1/geo.Wings(k).wing.cordNum:1;
     camberY = zeros(length(camberX),geo.Wings(k).wing.SegNum+1);
     for j = 1:geo.Wings(k).wing.SegNum+1
-        camberY(:,j) = interp1(geo.Wings(k).wing.meanCamber(j).camber(:,1),geo.Wings(k).wing.meanCamber(j).camber(:,2),camberX,'pchip');
+        camberY(:,j) = interp1(geo.Wings(k).wing.meanCamber(j).camber(:,1),geo.Wings(k).wing.meanCamber(j).camber(:,2)-geo.Wings(k).wing.meanCamber(j).camber(1,2),camberX,'pchip');
     end
     
     %Go through each cord section
